@@ -1,0 +1,35 @@
+---
+name: daily-project-brief
+description: מפיק תקציר מצב קצר על כל הכלים בתיקיית CLAUDE BOTS (PC-Software, Chrome-Extensions, digi-transform) — מה תקוע, מה מיושן, מה דורש תשומת לב — מבוסס על _AUDIT/STANDARDS.md, CHANGELOG/version.json של כל כלי, ומצב ה-pipeline של digi-transform. לא עוסק במייל/יומן כלליים (לכך יש סקיל morning נפרד). Trigger on - מה מצב הפרויקטים, daily brief, מה יש לי היום בכלים, סטטוס כל הכלים, מה תקוע.
+---
+
+# Daily Project Brief — CLAUDE BOTS
+
+תקציר ממוקד **קבצים בתיקיית העבודה הזו בלבד** (לא מייל/יומן — זה תפקידו של
+סקיל `morning` הכללי, ואין לשכפל אותו כאן). המטרה: תשובה מהירה ל"מה דורש
+תשומת לב עכשיו" בלי לפתוח ידנית כל SPEC/CHANGELOG בנפרד.
+
+## שלבים
+
+1. **סרוק את טבלת הסטטוס ב-`_AUDIT/STANDARDS.md`** — אתר כל שורה עם ❌ או ❓
+   בעמודות הליבה (build תקין, אפס secrets, גרסה מסונכרנת, שורש נקי).
+2. **לכל כלי פעיל תחת `PC-Software/` ו-`Chrome-Extensions/`** — בדוק:
+   - תאריך/גרסה אחרונים ב-`CHANGELOG.md` מול `version.json`/`package.json`/
+     `manifest.json` (חוסר סנכרון = דגל אדום).
+   - האם יש קבצי build/installer ישנים שוכחים בשורש (רמז לסבב release שלא הושלם).
+3. **בדוק את מצב ה-pipeline של digi-transform** (בתיקיית השורש `proposals/`,
+   `reports/`) — האם יש `proposals/*.md` שלא סומנו כ-applied, מתי `/weekly`
+   רץ לאחרונה (לפי תאריך הקובץ העדכני ביותר ב-`reports/`).
+4. **פלט: רשימה קצרה וממוקדת**, לא audit מלא — עד 5-7 שורות, מסודר לפי דחיפות:
+   - "כלי X: גרסה לא מסונכרנת בין CHANGELOG ל-package.json"
+   - "digi-transform: יש 3 proposals לא מיושמים מ-DD/MM"
+   - "כלי Y: לא עודכן 60+ יום, לבדוק אם עדיין רלוונטי"
+5. אם משהו דורש בדיקה מעמיקה יותר — הפנה להרצת סקיל `tool-standards-audit`
+   (subagent) על אותו כלי ספציפית, אל תבצע כאן audit מלא בעצמך.
+
+## גבולות מפורשים
+
+- אין קריאה למייל, יומן, וואטסאפ או כל ערוץ תקשורת חיצוני — זה תחום של
+  `anthropic-skills:morning`, לא של הסקיל הזה.
+- אין עריכת קבצים — זהו סקיל דיווח בלבד. אם נמצא ❌ שדורש תיקון, הצע למשתמש
+  להריץ `release-checklist` או `tool-standards-audit` בנפרד.
