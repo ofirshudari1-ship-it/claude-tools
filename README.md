@@ -56,9 +56,11 @@ definition), classifies each one (needs no change / needs an update / dead
 code), and reports the full list before any edit is made. This exact
 discipline — audit first, edit second — found 3 separate real bugs across 3
 rounds in one of the author's own projects, all cases where a change was
-tested only where it was made and broke a caller elsewhere. Triggers on:
-"change this function", "change the signature", "refactor", "who calls
-this", "change a shared API/module".
+tested only where it was made and broke a caller elsewhere. Also covers a
+shared Python module layer (a scripts folder where most files import from a
+handful of common modules) — the same audit-before-edit discipline, just a
+second concrete case for it. Triggers on: "change this function", "change
+the signature", "refactor", "who calls this", "change a shared API/module".
 
 ### `secrets-hygiene-check`
 Zero-secrets check before a commit or release: greps source code (excluding
@@ -78,8 +80,10 @@ stuck, what's stale, what needs attention — built from each project's own
 `CHANGELOG.md`/`version.json` sync state and a central standards/status
 document. Deliberately narrow: 5-7 lines, sorted by urgency, no full audit.
 Points to a deeper audit skill/agent when something needs more than a
-one-line flag. Triggers on: "what's the status of my projects", "daily
-brief", "what's stuck", "status of all tools".
+one-line flag. Once a month only, also flags skill folders that haven't
+been touched in 30+ days as a candidate for review — never deletes anything
+itself, just surfaces the list. Triggers on: "what's the status of my
+projects", "daily brief", "what's stuck", "status of all tools".
 
 ### `system-upgrade`
 The largest one here. An end-to-end upgrade workflow for an existing web
