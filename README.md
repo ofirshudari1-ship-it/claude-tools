@@ -107,6 +107,23 @@ app is a mess", "fix RTL", "mobile compatibility", "audit the UX".
 
 ---
 
+### `bloom-designer`
+A global (project-independent) design skill for the [Bloom](https://www.trybloom.ai/) MCP
+connection — on-brand image, SVG, video, and audio generation/editing for any brand you manage
+there, not tied to one project or client. Handles the operational parts a raw tool list doesn't:
+discovering Bloom's tools (registered under a random per-install prefix, so it resolves the right
+name via `ToolSearch` first), finding-or-creating the right Brand session instead of duplicating
+one, checking credit balance before any batch of more than 2-3 images (Bloom is a paid,
+credit-metered service), searching the Brand Library for reusable references before generating
+from scratch, and requiring explicit confirmation before an `apply_brand_edit` call that changes
+the *active* brand identity rather than producing a one-off asset. Requires the Bloom MCP
+connector to actually be connected in your Claude setup — the skill just orchestrates it, it
+doesn't provide the connection itself.
+Triggers on: "design this with Bloom", "generate a branded image", "update the brand identity in
+Bloom", "how many Bloom credits do I have".
+
+---
+
 ## Agents
 
 ### `system-upgrader`
