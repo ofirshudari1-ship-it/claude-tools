@@ -27,6 +27,15 @@ description: מפעיל checklist שחרור גרסה לפני כל release/buil
       כותרת חלון/מסך About, ו-`CHANGELOG.md`. אסור שאחד מהם יפגר אחרי השני.
 - [ ] קובץ ההתקנה/ה-build עצמו **נבנה מחדש בפועל** ומוחלף בשורש הפרויקט — לא
       נשאר קובץ ישן/לא-תואם-גרסה לצד קוד מעודכן.
+- [ ] **אם הכלי מבוסס electron-builder**: `gh release upload`/`create` מעלה
+      שלושה קבצים, לא רק את ה-.exe — `<Tool>-Setup-<version>.exe`,
+      `.exe.blockmap`, ו-`latest.yml`, כולם מ-`dist/`/`build/release/` (עותק
+      אחד עקבי, לא לערבב .exe מהשורש עם latest.yml מ-dist/ שנבנה בסבב אחר).
+      בלי `latest.yml` בדיקת "Check for Updates" נכשלת לגמרי (תועד בפועל,
+      ראו `_AUDIT/STANDARDS.md` §11.1). לאמת בפועל אחרי ההעלאה: להוריד את
+      `.../releases/latest/download/latest.yml` ואת ה-.exe, ולהשוות sha512 —
+      אם אין התאמה בבדיקה הראשונה יש להמתין כמה שניות ולנסות שוב (השהיית
+      CDN של GitHub אחרי `--clobber`) לפני שמסמנים כתקלה.
 - [ ] `CHANGELOG.md` מתעד מה בדיוק השתנה (Keep a Changelog: Added/Changed/Fixed/Removed).
 - [ ] `SPEC.md` מעודכן אם הפונקציונליות השתנתה.
 - [ ] `README.md` מעודכן אם ההתקנה/השימוש השתנו.
@@ -52,9 +61,17 @@ description: מפעיל checklist שחרור גרסה לפני כל release/buil
 
 ## שלב 4 — סיום
 
+- [ ] עדכן את `<project>/PROJECT.md` אם קיים (מסמך מצב פרטי, gitignored) - מספר
+      הגרסה, שורת "מה נעשה לאחרונה", וכל קישור/פער שהשתנה בסבב הזה. אם עדיין
+      אין `PROJECT.md` לכלי הזה, אין צורך ליצור אחד יזום כחלק משחרור רגיל -
+      זו הרחבה נפרדת, לא חלק מה-checklist הבסיסי.
 - [ ] עדכן את השורה המתאימה בטבלת הסטטוס ב-`_AUDIT/STANDARDS.md` עבור הכלי.
 - [ ] אם קיים `_AUDIT/AUDIT-<Tool>.md` — עדכן גם אותו בהתאם.
 - [ ] אם יש git בפרויקט — הצע לתייג את הגרסה (`git tag vX.Y.Z`), אל תעשה זאת אוטומטית.
+- [ ] זה checklist מהיר לפני שחרור, לא audit מלא — אם עולה משהו שדורש בדיקה עמוקה יותר
+      (חשד לסטייה ישנה מהסטנדרטים, כלי שלא עבר audit הרבה זמן, ספק אם ה-audit
+      הקיים עדיין נכון) — הפנה להרצת agent `tool-standards-audit` על אותו כלי,
+      אל תבצע audit מלא בעצמך כאן.
 
 ## הערות
 

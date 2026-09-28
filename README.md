@@ -44,7 +44,11 @@ multi-project folder — checks that the version number is in sync everywhere
 it needs to appear (`version.json`/`package.json`/`.csproj`/`manifest.json`,
 the installer filename, the About screen, `CHANGELOG.md`), that the installer
 was actually rebuilt (not a stale copy sitting next to updated code), and
-that the project root is clean of leftover build artifacts. Falls back to a
+that the project root is clean of leftover build artifacts. For electron-builder
+apps specifically, verifies the update-feed files (`latest.yml`, `.blockmap`)
+were actually uploaded alongside the installer and not just the bare `.exe` —
+missing them breaks the app's "check for updates" silently, with no error
+until a user hits it. Falls back to a
 project's own `RELEASE-CHECKLIST.md` when one exists, otherwise applies a
 global set of rules. Triggers on: "ready to release", "check before release",
 "new version", "before I ship the installer", "check before publish".
