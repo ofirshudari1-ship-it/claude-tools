@@ -107,20 +107,19 @@ app is a mess", "fix RTL", "mobile compatibility", "audit the UX".
 
 ---
 
-### `bloom-designer`
-A global (project-independent) design skill for the [Bloom](https://www.trybloom.ai/) MCP
-connection — on-brand image, SVG, video, and audio generation/editing for any brand you manage
-there, not tied to one project or client. Handles the operational parts a raw tool list doesn't:
-discovering Bloom's tools (registered under a random per-install prefix, so it resolves the right
-name via `ToolSearch` first), finding-or-creating the right Brand session instead of duplicating
-one, checking credit balance before any batch of more than 2-3 images (Bloom is a paid,
-credit-metered service), searching the Brand Library for reusable references before generating
-from scratch, and requiring explicit confirmation before an `apply_brand_edit` call that changes
-the *active* brand identity rather than producing a one-off asset. Requires the Bloom MCP
-connector to actually be connected in your Claude setup — the skill just orchestrates it, it
-doesn't provide the connection itself.
-Triggers on: "design this with Bloom", "generate a branded image", "update the brand identity in
-Bloom", "how many Bloom credits do I have".
+### `local-designer`
+A global (project-independent) design skill for producing on-brand marketing assets entirely
+locally — SVG/HTML composed and rendered with `sharp` and headless Chrome, no paid generative
+API, no per-image cost. Reads brand identity (colors, fonts, logo) from the project's own files
+first; if a brand has already been onboarded to [Bloom](https://www.trybloom.ai/) (read-only —
+this skill never calls Bloom's paid generation/editing tools), it can pull the brand profile from
+there instead of asking the user to redescribe it. Covers the same brief → brand → copy → design →
+export pipeline used across several real projects: reusing existing logo/asset folders instead of
+generating from scratch, routing copy through a dedicated writing step, checking WCAG AA contrast
+and RTL correctness, and exporting to every needed web/social format with alt text — never
+publishing anywhere without explicit approval.
+Triggers on: "design this locally", "make a marketing image", "create a banner/story/post",
+"resize these images", "check the brand colors for X".
 
 ---
 
