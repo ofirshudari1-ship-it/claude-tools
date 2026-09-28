@@ -37,11 +37,16 @@ Priority order for the brand identity source:
 
 ## Step 2 - copy
 
-Marketing text that goes on the asset: if the project has a dedicated writing skill/agent, brief
-it fully (channel, topic, audience) and use its output rather than writing copy yourself when a
-dedicated tool exists. Otherwise write it yourself in plain, natural language — no connecting
-hyphens as filler, no emojis, no inflated promises. For RTL languages: right-aligned, `dir="rtl"`,
-check punctuation isn't reversed.
+**Required, not optional**: the design skill does not write its own marketing copy. For any text
+that goes on the asset (headline/subhead/CTA/caption), always defer first to a project's dedicated
+writing agent if one exists, or a language-specific writing skill available in the environment
+(for example, a Hebrew-copywriting skill for Hebrew content) — brief it fully (channel, topic,
+audience, tone) and use its output. Only write it yourself, in plain natural language with no
+filler hyphens, no emojis, no inflated promises, when no such dedicated tool is available for the
+target language. After getting text back from the dedicated tool, only then fit it to the physical
+format's constraints (length, what fits in the layout) — don't rewrite it yourself; if trimming
+would hurt the meaning, go back to the dedicated tool and ask for a shorter version instead. For
+RTL languages: right-aligned, `dir="rtl"`, check punctuation isn't reversed.
 
 ## Step 3 - design
 
