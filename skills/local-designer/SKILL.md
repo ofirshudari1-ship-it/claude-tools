@@ -13,6 +13,12 @@ If Bloom is connected and a Brand session already exists for the business, it ca
 
 Pipeline: brief → brand → copy → design → export → ready assets.
 
+**Scope - static images/graphics only.** If the user asks for video, animation, or a moving
+composition, that's out of scope here. Hand off to (or invoke) a dedicated video-composition skill
+if one is available in your environment — one built on the same local-rendering, no-paid-API
+principle (HTML/CSS composed and rendered to video) — rather than trying to build video yourself
+in this skill.
+
 ## Step 0 - discovering tools (only if reading brand info from Bloom)
 
 If the user wants to check/pull brand details from Bloom (not generate an image!): search with
