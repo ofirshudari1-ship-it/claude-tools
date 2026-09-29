@@ -1,6 +1,6 @@
 ---
 name: grep-audit-callers
-description: לפני שינוי בפונקציה/מודול/API משותף בכל אחד מפרויקטי הפיתוח (AutoProcessTwin, FamilyQuest PC, TabToTable-AI ואחרים) או במודולי הפייתון המשותפים של digi-transform (scripts/common.py, db.py, gauth.py, zoho_mail.py, log_change.py ועוד — 23 מתוך 25 קבצי scripts/ מייבאים מהם), מריץ סריקת grep מלאה לכל הקוראים ומדווח עליהם לפני שנוגעים בקוד. שיטה מאומתת שמצאה 3 באגים ב-3 סבבים ב-AutoProcessTwin. Trigger on - לשנות פונקציה, לשנות חתימה, refactor, מי קורא לפונקציה הזו, שינוי API משותף, שינוי מודול, שינוי ב-scripts/common.py או במודול משותף אחר.
+description: לפני שינוי בפונקציה/מודול/API משותף בכל אחד מפרויקטי הפיתוח (AutoProcessTwin, FamilyQuest PC, TabToTable-AI ואחרים) או במודולי הפייתון המשותפים של digi-transform (digi-transform/scripts/common.py, db.py, gauth.py, zoho_mail.py, log_change.py ועוד — 23 מתוך 25 קבצי digi-transform/scripts/ מייבאים מהם), מריץ סריקת grep מלאה לכל הקוראים ומדווח עליהם לפני שנוגעים בקוד. שיטה מאומתת שמצאה 3 באגים ב-3 סבבים ב-AutoProcessTwin. Trigger on - לשנות פונקציה, לשנות חתימה, refactor, מי קורא לפונקציה הזו, שינוי API משותף, שינוי מודול, שינוי ב-digi-transform/scripts/common.py או במודול משותף אחר.
 ---
 
 # Grep Audit Callers — לפני שינוי קוד משותף
