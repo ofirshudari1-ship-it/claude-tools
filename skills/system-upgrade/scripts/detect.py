@@ -188,6 +188,9 @@ class Detector:
         for i, ln in enumerate(lines, 1):
             if "rtl-exception" in ln or "eslint-disable" in ln:
                 continue
+            if re.match(r"\s*(?:\{/\*|//|\*|/\*)", ln):
+                continue  # comment line (incl. JSX {/* ... */}) — a word like "right-side" in
+                          # prose isn't a Tailwind class, same false-positive class as hex-in-tsx
             quoted = ('"' in ln or "'" in ln or "`" in ln)
             if is_markup or quoted:
                 for m in PHYSICAL_TOKEN_RE.finditer(ln):
@@ -230,7 +233,7 @@ class Detector:
                     self.add("a11y.autofocus-mobile", "low", "a11y", path, i, ln.strip()[:110], "autoFocus במובייל פותח מקלדת ומזיז layout — הפעל רק בדסקטופ / אחרי אינטראקציה")
                 if RAW_PALETTE_RE.search(ln) and self.has_token_system and not token_file:
                     self.add("design.raw-palette", "low", "design", path, i, ln.strip()[:110], "פלטת Tailwind גולמית כשיש token system — השתמש ב-token (text-ink-dim, bg-surface-2)")
-            if is_markup and not token_file and not infra_file and "href=" not in ln and "token-exception" not in ln and "R2 exception" not in ln and "url(" not in ln:
+            if is_markup and not token_file and not infra_file and "href=" not in ln and "token-exception" not in ln and "R2 exception" not in ln and "url(" not in ln and not re.match(r"\s*(?://|\*|/\*)", ln):
                 for m in HEX_RE.finditer(ln):
                     self.add("design.hex-in-tsx", "medium", "design", path, i, ln.strip()[:110], "צבע קשיח בקומפוננט — העבר ל-token ב-globals.css (var(--x)) או סמן token-exception עם סיבה")
             if ALERT_RE.search(ln) and "console." not in ln and not re.search(r"\bfunction\s+(?:alert|confirm|prompt)|const\s+(?:alert|confirm|prompt)", ln) and not re.match(r"\s*(?://|\*|/\*)", ln):
@@ -283,7 +286,7 @@ class Detector:
             if not re.search(r"\bdir\s*=", m.group(0)) and self.stats["hebrew_files"]:
                 self.add("rtl.free-input-no-auto", "low", "rtl", path, line_of(t, m.start()), snippet(t, m.start()), 'textarea → dir="auto"')
         for m in TAG_IMG_RE.finditer(t):
-            if not re.search(r"\balt\s*=", m.group(0)):
+            if not re.search(r"\balt\s*=", m.group(0)) and not re.match(r"\s*(?://|\*|/\*)", snippet(t, m.start())):
                 self.add("a11y.img-no-alt", "high", "a11y", path, line_of(t, m.start()), snippet(t, m.start()), 'כל תמונה עם alt (דקורטיבית: alt="")')
         for m in TAG_BUTTON_RE.finditer(t):
             attrs, inner = m.group(1), m.group(2)
