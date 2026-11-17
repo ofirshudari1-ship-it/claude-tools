@@ -1,6 +1,6 @@
 ---
 name: release-checklist
-description: מפעיל checklist שחרור גרסה לפני כל release/build של כלי מ-PC-Software או Chrome-Extensions (AutoProcessTwin, FamilyQuest PC, TabToTable-AI ואחרים). משתמש ב-RELEASE-CHECKLIST.md הייעודי אם קיים, ואם לא — נופל לכלל הסנכרון הגלובלי מ-_AUDIT/STANDARDS.md. Trigger on - מוכן לשחרור, בדוק לפני release, גרסה חדשה, לפני שאני מוציא installer, בדוק לפני publish, checklist שחרור.
+description: "Runs a release checklist before shipping a build: version sync across manifests, installer rebuilt, update-feed files uploaded, clean project root. Uses the project's own RELEASE-CHECKLIST.md when present. Trigger on: ready to release, new version, before I ship the installer."
 ---
 
 # Release Checklist — כל כלי ב-CLAUDE BOTS

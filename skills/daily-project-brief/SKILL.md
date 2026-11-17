@@ -1,6 +1,6 @@
 ---
 name: daily-project-brief
-description: מפיק תקציר מצב קצר על כל הכלים בתיקיית CLAUDE BOTS (PC-Software, Chrome-Extensions, digi-transform) — מה תקוע, מה מיושן, מה דורש תשומת לב — מבוסס על _AUDIT/STANDARDS.md, CHANGELOG/version.json של כל כלי, ומצב ה-pipeline של digi-transform. לא עוסק במייל/יומן כלליים (לכך יש סקיל morning נפרד). Trigger on - מה מצב הפרויקטים, daily brief, מה יש לי היום בכלים, סטטוס כל הכלים, מה תקוע.
+description: "Short status brief across every tool in a multi-project folder: what is stuck, stale or needs attention, built from each project's CHANGELOG, version files and a central standards document. Trigger on: daily brief, project status, what's stuck, status of all tools."
 ---
 
 # Daily Project Brief — CLAUDE BOTS

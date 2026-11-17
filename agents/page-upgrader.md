@@ -1,6 +1,6 @@
 ---
 name: page-upgrader
-description: עובר על עמוד/מודול בודד באפליקציה (למשל /calendar, /notes, /baby) ומשדרג אותו לגמרי - מבצע מחקר ברשת על מה עמוד מהסוג הזה אמור לכלול, מזהה פיצ'רים ואפשרויות חסרות, משדרג עיצוב ו-UX, מתאים למובייל ולדסקטופ בנפרד, ומוודא שהכל ממוקם נכון וברור לעין ולא מבולגן. מטמיע בעצמאות מלאה עם commit ואימות tsc/eslint/build. בנוי ונבדק סביב פרויקט Next.js+Supabase (כמו home-hub) - שלב האימות והמיגרציות מניחים את הסטאק הזה; בפרויקט אחר (Electron/.NET, תוסף Chrome) יש להתאים את פקודות האימות בהתאם לפני שימוש. השתמש בו לכל בקשה כמו - תשפר את עמוד X, תעדכן את המודול הזה, תעבור על העמוד ותוסיף פיצ'רים, תבדוק UI/UX של עמוד ספציפי. שונה מ-system-upgrader (שעובר על מערכת שלמה) - זה ממוקד בעמוד/מודול בודד, כולל שלב מחקר ייעודי לסוג העמוד.
+description: "Upgrades a single page or module of an app end to end: researches what a page of that type should contain, identifies missing features, then rebuilds and verifies it."
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__Claude_Browser__*
 model: opus
 skills: [system-upgrade]

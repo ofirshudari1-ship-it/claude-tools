@@ -1,6 +1,6 @@
 ---
 name: secrets-hygiene-check
-description: בודק אפס secrets בקוד (API keys, tokens, connection strings, סיסמאות) לפני commit/release בכל כלי מ-PC-Software או Chrome-Extensions, ומוודא ש-.gitignore וטעינת קונפיג תקינים. Trigger on - check for secrets, בדוק secrets, לפני commit, אפס secrets, חשש לדליפת מפתח, בדיקת אבטחה לפני שחרור.
+description: "Zero-secrets check before commit or release: scans source for API keys, tokens, passwords and connection strings, verifies .gitignore and environment-based config. Stops and reports on any real finding. Trigger on: check for secrets, before commit, leaked key worry."
 ---
 
 # Secrets Hygiene Check

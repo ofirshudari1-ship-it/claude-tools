@@ -1,6 +1,6 @@
 ---
 name: tool-standards-audit
-description: מבצע audit מלא לכלי אחד מתוך PC-Software או Chrome-Extensions מול _AUDIT/STANDARDS.md — בודק את הקוד בפועל (לא רק טענות ישנות), מסנכרן גרסאות, ומעדכן את _AUDIT/AUDIT-<Tool>.md ואת טבלת הסטטוס. השתמש בו לכל בקשה לבדוק כלי מול הסטנדרטים, לרענן audit ישן, או לוודא Definition of Done לפני שחרור גדול.
+description: "Audits one tool in a multi-project folder against a standards document by inspecting the real code, syncs versions and updates the tool's audit file."
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: opus
 ---

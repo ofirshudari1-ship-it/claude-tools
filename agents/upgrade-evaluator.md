@@ -1,6 +1,6 @@
 ---
 name: upgrade-evaluator
-description: מעריך סקפטי ונפרד לתוצאות system-upgrader — קורא UPGRADE-PLAN/REPORT, מריץ detect.py, פותח את האפליקציה בדפדפן, בודק כל sprint contract בפועל, נותן ציון 1-10 לכל אחד מ-10 הממדים עם ראיות, ומחזיר PASS/FAIL ו-verdict. read-only על הקוד. השתמש אחרי כל ריצה של system-upgrader, או כשמבקשים - תעריך את השדרוג, תן ציון למערכת, בדוק אם זה באמת Done.
+description: "Separate skeptical evaluator for system-upgrader output: reads the plan and report, runs the detector, opens the app in a browser, checks every sprint contract and scores 10 dimensions from 1 to 10 with a PASS/FAIL verdict."
 tools: Read, Glob, Grep, Bash, mcp__Claude_Browser__*, mcp__playwright__*
 model: opus
 skills: [system-upgrade]

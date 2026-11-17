@@ -1,6 +1,6 @@
 ---
 name: system-upgrade
-description: שדרוג מערכת קיימת מקצה לקצה (web/Next/React, Electron, תוסף Chrome) — סריקה דטרמיניסטית + דפדפן חי, דוח מבוסס-ראיות ב-10 ממדים (RTL עברית, מובייל/דסקטופ, נגישות WCAG 2.2/ת"י 5568, עיצוב לא-גנרי, UX/states, טפסים, ביצועים נתפסים, קלות הגדרה, שכבת AI, בריאות קוד), תוכנית ספרינטים עם contracts, ביצוע אוטונומי עם commit וצילומי לפני/אחרי, והערכה ע"י סוכן נפרד. Trigger on - תשדרג את המערכת, תעבור ותשפר, המערכת מבולגנת, תקן RTL, תאימות מובייל, audit UX, שדרוג כלי, system upgrade, /system-upgrade.
+description: "End-to-end upgrade of an existing web, Electron or Chrome-extension app: deterministic scan plus live browser check, evidence-based report across 10 dimensions (RTL, responsive, WCAG 2.2, design, UX states, forms, performance, setup, AI layer, code health), sprint plan and verified execution. Trigger on: upgrade the system, audit UX, fix RTL, system upgrade."
 ---
 
 # System Upgrade — שדרוג מערכת קיימת מקצה לקצה

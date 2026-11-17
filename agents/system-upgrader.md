@@ -1,6 +1,6 @@
 ---
 name: system-upgrader
-description: סורק מערכת קיימת (web/Next/React, Electron, תוסף Chrome) ומשדרג אותה מקצה לקצה — RTL עברית, מובייל/דסקטופ, נגישות WCAG 2.2/ת"י 5568, עיצוב מודרני לא-גנרי, UX/states/טפסים, קלות הגדרה, שכבת AI. מריץ detector דטרמיניסטי + דפדפן חי, מתעדף, מתקן בספרינטים עם commit וצילומי לפני/אחרי. השתמש בו לכל בקשה כמו - תשדרג את המערכת, תעבור על הכלי ותשפר, המערכת מבולגנת, תקן RTL/מובייל, audit UX. אחריו תמיד מריצים upgrade-evaluator.
+description: "Scans an existing app (web, Next/React, Electron, Chrome extension) and upgrades it end to end: RTL, mobile and desktop, WCAG 2.2 accessibility, modern design, UX states, forms, performance, with commits per sprint."
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, mcp__Claude_Browser__*, mcp__playwright__*
 model: opus
 memory: user

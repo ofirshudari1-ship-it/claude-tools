@@ -1,4 +1,34 @@
-# Claude Code Tools by Ofir Shudari
+<p align="center"><img src="assets/banner.svg" alt="Claude Tools"></p>
+
+# Claude Tools
+
+Six Claude Code skills and four subagents, extracted from real day-to-day use. Plain Markdown, no installer, no dependencies.
+
+## Skills
+
+| Logo | Name | Folder | What it does | Use it when | Invoke |
+|---|---|---|---|---|---|
+| <img src="assets/daily-project-brief.svg" width="44"> | **Dawnbrief** | `daily-project-brief` | 5-line status of every project, sorted by urgency | Morning check-in across many tools | `/daily-project-brief` |
+| <img src="assets/grep-audit-callers.svg" width="44"> | **Callsweep** | `grep-audit-callers` | Finds every caller before you edit shared code | Before changing a function, API or module | `/grep-audit-callers` |
+| <img src="assets/release-checklist.svg" width="44"> | **Launchpad** | `release-checklist` | Release gate: versions, installer, update feed | Before shipping an installer or build | `/release-checklist` |
+| <img src="assets/secrets-hygiene-check.svg" width="44"> | **Vaultguard** | `secrets-hygiene-check` | Zero-secrets scan before commit or release | Before every commit or publish | `/secrets-hygiene-check` |
+| <img src="assets/system-upgrade.svg" width="44"> | **Overhaul** | `system-upgrade` | End-to-end app upgrade across 10 dimensions | Upgrade a web, Electron or Chrome-extension app | `/system-upgrade` |
+| <img src="assets/local-designer.svg" width="44"> | **Pixelhearth** | `local-designer` | Free local marketing graphics, no paid API | Banners, posts, stories in your brand colors | `/local-designer` |
+
+## Agents
+
+| Logo | Name | File | What it does | Use it when | Delegate to |
+|---|---|---|---|---|---|
+| <img src="assets/page-upgrader.svg" width="44"> | **Pagesmith** | `page-upgrader` | Rebuilds one page or module end to end | Upgrade a single screen such as /calendar | `page-upgrader` |
+| <img src="assets/system-upgrader.svg" width="44"> | **Foreman** | `system-upgrader` | Plans and runs the full upgrade with commits per sprint | Whole-app upgrade, sprint by sprint | `system-upgrader` |
+| <img src="assets/tool-standards-audit.svg" width="44"> | **Plumbline** | `tool-standards-audit` | Audits one tool against your standards doc using real code | Standards check for one project | `tool-standards-audit` |
+| <img src="assets/upgrade-evaluator.svg" width="44"> | **Skeptic** | `upgrade-evaluator` | Independent scorer: opens the app and checks every claim | Second opinion on an upgrade | `upgrade-evaluator` |
+
+**Skill vs agent:** a skill loads into your current chat. An agent is a named sub-session with its own tools that returns a report.
+
+---
+
+## Details and install
 
 A collection of custom Claude Code skills and subagents, built while running a
 real multi-tool software portfolio day to day. Each one grew out of an actual
