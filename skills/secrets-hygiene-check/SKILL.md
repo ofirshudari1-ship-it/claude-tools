@@ -5,31 +5,20 @@ description: "Zero-secrets check before commit or release: scans source for API 
 
 # Secrets Hygiene Check
 
-`_AUDIT/STANDARDS.md` מגדיר "אפס secrets בקוד" כדרישת חובה לכל כלי, ובודק אותה
-בכל מחזור audit. הסקיל הזה מריץ את אותה בדיקה בצורה עקבית, בלי לגלות אותה
-מחדש כל פעם.
+Your standards document defines "zero secrets in code" as a mandatory requirement for every tool and checks it in every audit cycle. This skill runs that same check consistently, without rediscovering it each time. Trigger: before a commit or release, or any worry that a key leaked. Input: the project's source folder. Output: a concise pass/fail report (see step 4).
 
-## שלבים
+## Steps
 
-1. **סרוק תבניות secrets נפוצות** בעזרת Grep על `src/`/קוד המקור של הפרויקט
-   (לא `node_modules`, `dist`, `build`, `win-unpacked`):
-   - מפתחות API (`api[_-]?key`, `sk-`, `AIza`, `ghp_`, מחרוזות ארוכות עם אותיות+מספרים)
-   - טוקנים/סודות (`token`, `secret`, `password`, `client_secret`)
-   - connection strings (`mongodb://`, `postgres://`, `Server=...;Password=`)
-   - מפתחות פרטיים מוטבעים (`-----BEGIN PRIVATE KEY-----`)
-2. **בדוק את `.gitignore`** — מוודא שהוא כולל `.env`, קבצי credentials, ותיקיות
-   config שעלולות להכיל סודות אמיתיים בסביבת הפיתוח.
-3. **בדוק את דרך טעינת הקונפיג בפועל** — אמור להשתמש ב-`%APPDATA%`/משתני סביבה/
-   קובץ קונפיג מקומי לא-מגורסן, ולא בנתיבים קשיחים עם ערכים רגישים מוטבעים בקוד.
-4. **דווח בפורמט תמציתי** (✅/❌ לכל בדיקה), באותו סגנון שכבר קיים בטבלת הסטטוס
-   של `_AUDIT/STANDARDS.md`, כדי שאפשר יהיה להזין את התוצאה ישירות לשם או
-   ל-`_AUDIT/AUDIT-<Tool>.md`.
+1. **Scan for common secret patterns** with Grep over `src/` / the project's source code (not `node_modules`, `dist`, `build`, `win-unpacked`):
+   - API keys (`api[_-]?key`, `sk-`, `AIza`, `ghp_`, long strings mixing letters and digits)
+   - Tokens/secrets (`token`, `secret`, `password`, `client_secret`)
+   - Connection strings (`mongodb://`, `postgres://`, `Server=...;Password=`)
+   - Embedded private keys (`-----BEGIN PRIVATE KEY-----`)
+2. **Check `.gitignore`**: confirm it includes `.env`, credential files, and config folders that might hold real secrets in the development environment.
+3. **Check how config is actually loaded**: it should use `%APPDATA%` / environment variables / a local, non-versioned config file, not hardcoded paths with sensitive values embedded in code.
+4. **Report concisely** (a pass or fail mark per check), in the same style as the existing status table in your standards document, so the result can be fed straight into it or into `<audit folder>/AUDIT-<Tool>.md`.
 
-## כללים
+## Rules
 
-- ממצא = ציטוט קובץ+שורה, לא ניחוש. אם משהו נראה חשוד אבל לא ודאי (למשל מחרוזת
-  שנראית כמו מפתח אבל היא בעצם דוגמה/placeholder) — לסמן כ-⚠️ לבדיקה ידנית,
-  לא לקבוע בוודאות.
-- אם נמצא secret אמיתי בקוד: לדווח מיד למשתמש ולא להמשיך בפעולות נוספות
-  (commit/release/publish) עד שהוא יטפל בזה. אל תמחק/תחליף את הסוד בעצמך בלי
-  אישור מפורש.
+- A finding means quoting file and line, not guessing. If something looks suspicious but is uncertain (for example a string that looks like a key but is actually an example/placeholder), mark it with a warning sign for manual review and do not declare it definitively.
+- If a real secret is found in code: report it to the user immediately and take no further actions (commit/release/publish) until they deal with it. Do not delete or replace the secret yourself without explicit approval.

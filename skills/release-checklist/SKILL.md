@@ -3,80 +3,48 @@ name: release-checklist
 description: "Runs a release checklist before shipping a build: version sync across manifests, installer rebuilt, update-feed files uploaded, clean project root. Uses the project's own RELEASE-CHECKLIST.md when present. Trigger on: ready to release, new version, before I ship the installer."
 ---
 
-# Release Checklist — כל כלי ב-CLAUDE BOTS
+# Release Checklist: every tool in the multi-project folder
 
-לפני שמסמנים release/build כ"גמור" לכל אחד מהכלים בתיקיות `PC-Software/` או
-`Chrome-Extensions/`, יש להריץ את הבדיקות הבאות. אל תדלג על שלב כי "זו רק גרסה קטנה" —
-`_AUDIT/STANDARDS.md` מגדיר את זה כחוק ברזל שחל גם על שינויים קטנים.
+Purpose: before marking a release/build as "done" for any tool in your desktop-software or browser-extension folders, run the checks below. Trigger: "ready to release", "new version", "before I ship the installer", "before publish". Input: the tool name or path. Output: a ticked checklist with any failed item reported. Do not skip a step because "it is only a small version": your standards document defines this as an iron rule that also applies to small changes.
 
-## שלב 1 — זיהוי הפרויקט וה-checklist הרלוונטי
+## Step 1: identify the project and its relevant checklist
 
-1. זהה את שם הכלי מתוך הבקשה/הנתיב (למשל `PC-Software/AutoProcessTwin`,
-   `PC-Software/FamilyQuest PC`, `Chrome-Extensions/TabToTable-AI`).
-2. חפש `<project>/RELEASE-CHECKLIST.md`.
-   - **אם קיים** (נכון לעכשיו: AutoProcessTwin) — עקוב אחריו **כמו שהוא, שורה-שורה**.
-     אל תשכפל את התוכן שלו כאן ואל תמציא גרסה מקבילה — הוא מקור האמת לאותו כלי.
-   - **אם לא קיים** (FamilyQuest PC, TabToTable-AI, כלים אחרים) — המשך לשלב 2.
+1. Identify the tool name from the request/path (for example `<desktop-software folder>/AutoProcessTwin`, `<desktop-software folder>/FamilyQuest PC`, `<extensions folder>/TabToTable-AI`).
+2. Look for `<project>/RELEASE-CHECKLIST.md`.
+   - **If it exists** (currently: AutoProcessTwin), follow it **as is, line by line**. Do not duplicate its content here and do not invent a parallel version: it is the source of truth for that tool.
+   - **If it does not exist** (FamilyQuest PC, TabToTable-AI, other tools), continue to step 2.
 
-## שלב 2 — כלל הסנכרון הגלובלי (מ-`_AUDIT/STANDARDS.md`)
+## Step 2: the global sync rule (from your standards document)
 
-כשאין קובץ checklist ייעודי, אכוף את חוקי הברזל הבאים, כולם **באותה פעולה**:
+When there is no dedicated checklist file, enforce the following iron rules, all **in the same action**:
 
-- [ ] מספר הגרסה מעודכן בו-זמנית בכל המקומות: `version.json`/`package.json`/
-      `.csproj`/`manifest.json`, שם קובץ ההתקנה (`<Tool>-Setup-<version>.exe`),
-      כותרת חלון/מסך About, ו-`CHANGELOG.md`. אסור שאחד מהם יפגר אחרי השני.
-- [ ] קובץ ההתקנה/ה-build עצמו **נבנה מחדש בפועל** ומוחלף בשורש הפרויקט — לא
-      נשאר קובץ ישן/לא-תואם-גרסה לצד קוד מעודכן.
-- [ ] **אם הכלי מבוסס electron-builder**: `gh release upload`/`create` מעלה
-      שלושה קבצים, לא רק את ה-.exe — `<Tool>-Setup-<version>.exe`,
-      `.exe.blockmap`, ו-`latest.yml`, כולם מ-`dist/`/`build/release/` (עותק
-      אחד עקבי, לא לערבב .exe מהשורש עם latest.yml מ-dist/ שנבנה בסבב אחר).
-      בלי `latest.yml` בדיקת "Check for Updates" נכשלת לגמרי (תועד בפועל,
-      ראו `_AUDIT/STANDARDS.md` §11.1). לאמת בפועל אחרי ההעלאה: להוריד את
-      `.../releases/latest/download/latest.yml` ואת ה-.exe, ולהשוות sha512 —
-      אם אין התאמה בבדיקה הראשונה יש להמתין כמה שניות ולנסות שוב (השהיית
-      CDN של GitHub אחרי `--clobber`) לפני שמסמנים כתקלה.
-- [ ] `CHANGELOG.md` מתעד מה בדיוק השתנה (Keep a Changelog: Added/Changed/Fixed/Removed).
-- [ ] `SPEC.md` מעודכן אם הפונקציונליות השתנתה.
-- [ ] `README.md` מעודכן אם ההתקנה/השימוש השתנו.
-- [ ] תיקיית השורש נקייה — רק installer/CHANGELOG/SPEC/README (בלי סקריפטי build,
-      `dist/`/`build/` ביניים, כפילויות של installer ישן).
-- [ ] אפס secrets בקוד (אם יש חשד — הפעל את סקיל `secrets-hygiene-check`).
+- [ ] The version number is updated simultaneously in every place: `version.json` / `package.json` / `.csproj` / `manifest.json`, the installer file name (`<Tool>-Setup-<version>.exe`), the window title or About screen, and `CHANGELOG.md`. None may lag behind another.
+- [ ] The installer/build itself is **actually rebuilt** and replaced in the project root: no stale or version-mismatched file may sit next to updated code.
+- [ ] **If the tool uses electron-builder:** `gh release upload` / `create` must upload three files, not only the .exe: `<Tool>-Setup-<version>.exe`, `.exe.blockmap`, and `latest.yml`, all from `dist/` or `build/release/` (one consistent copy; do not mix an .exe from the root with a latest.yml from a `dist/` built in a different round). Without `latest.yml` the "Check for Updates" feature fails completely (documented in practice; see section 11.1 of your standards document). Verify after upload: download `.../releases/latest/download/latest.yml` and the .exe and compare sha512. If they do not match on the first check, wait a few seconds and retry (GitHub CDN delay after `--clobber`) before flagging a failure.
+- [ ] `CHANGELOG.md` records exactly what changed (Keep a Changelog: Added/Changed/Fixed/Removed).
+- [ ] `SPEC.md` is updated if functionality changed.
+- [ ] `README.md` is updated if installation or usage changed.
+- [ ] The root folder is clean: only installer/CHANGELOG/SPEC/README (no build scripts, intermediate `dist/`/`build/`, or duplicates of an old installer).
+- [ ] Zero secrets in code (if in doubt, run the `secrets-hygiene-check` skill).
 
-## שלב 3 — כלל ייעודי ל-FamilyQuest PC
+## Step 3: FamilyQuest PC specific rule
 
-לפי לקח מתועד בזיכרון: **כל שדרוג ל-FamilyQuest PC חייב, יחד ובאותה פעולה**:
+Based on a documented lesson from memory: **every upgrade to FamilyQuest PC must, together and in the same action**:
 
-- [ ] עדכון דף הנחיתה (Artifact) — חפש אותה עם `Artifact` tool `action: "list"`,
-      קרא את התוכן הנוכחי, ופרסם גרסה מעודכנת שמשקפת את הפיצ'רים/הגרסה החדשים.
-      אל תשאיר אותה עם מספר גרסה/פיצ'רים ישנים.
-- [ ] עדכון `package.json`'s `"version"` (לא רק README/SPEC — הבאג התועד: הגרסה
-      נשארה `1.0.0` דרך כמה סבבים בזמן שה-README כבר עדכן מספרים).
-- [ ] `npm run build && npm run dist` — בניית installer מחדש בפועל, לא רק commit לקוד.
-      שם הקובץ יציב (`FamilyQuest-PC-Setup.exe`, בלי `${version}` בשם) — כל
-      `npm run dist` דורס את אותו קובץ, **אל תחזיר** את `${version}` לשם הקובץ.
-- [ ] אחרי כל build: מחק את `release/win-unpacked/` (תיקיית ביניים בת ~250MB+
-      שניתנת לשחזור מלא) — נשארים ב-`release/` רק `.exe`/`.blockmap`/`latest.yml`/
-      `builder-debug.yml`.
+- [ ] Update the landing page (an Artifact): find it with the `Artifact` tool `action: "list"`, read its current content, and publish an updated version reflecting the new features/version. Do not leave it with an old version number or old features.
+- [ ] Update `package.json`'s `"version"` (not only README/SPEC; the documented bug: the version stayed `1.0.0` through several rounds while the README had already been updated with new numbers).
+- [ ] Run `npm run build && npm run dist` to actually rebuild the installer, not just commit the code. The file name is stable (`FamilyQuest-PC-Setup.exe`, with no `${version}` in the name); every `npm run dist` overwrites the same file, so **do not put** `${version}` back into the file name.
+- [ ] After every build, delete `release/win-unpacked/` (an intermediate folder of roughly 250MB+ that is fully reproducible). Only `.exe` / `.blockmap` / `latest.yml` / `builder-debug.yml` stay in `release/`.
 
-## שלב 4 — סיום
+## Step 4: wrap-up
 
-- [ ] עדכן את `<project>/PROJECT.md` אם קיים (מסמך מצב פרטי, gitignored) - מספר
-      הגרסה, שורת "מה נעשה לאחרונה", וכל קישור/פער שהשתנה בסבב הזה. אם עדיין
-      אין `PROJECT.md` לכלי הזה, אין צורך ליצור אחד יזום כחלק משחרור רגיל -
-      זו הרחבה נפרדת, לא חלק מה-checklist הבסיסי.
-- [ ] עדכן את השורה המתאימה בטבלת הסטטוס ב-`_AUDIT/STANDARDS.md` עבור הכלי.
-- [ ] אם קיים `_AUDIT/AUDIT-<Tool>.md` — עדכן גם אותו בהתאם.
-- [ ] אם יש git בפרויקט — הצע לתייג את הגרסה (`git tag vX.Y.Z`), אל תעשה זאת אוטומטית.
-- [ ] זה checklist מהיר לפני שחרור, לא audit מלא — אם עולה משהו שדורש בדיקה עמוקה יותר
-      (חשד לסטייה ישנה מהסטנדרטים, כלי שלא עבר audit הרבה זמן, ספק אם ה-audit
-      הקיים עדיין נכון) — הפנה להרצת agent `tool-standards-audit` על אותו כלי,
-      אל תבצע audit מלא בעצמך כאן.
+- [ ] Update `<project>/PROJECT.md` if it exists (a private, gitignored status document): the version number, the "what was done last" line, and any link or gap that changed in this round. If the tool has no `PROJECT.md` yet, do not create one proactively as part of a regular release; that is a separate extension, not part of the basic checklist.
+- [ ] Update the matching row for the tool in the status table of your standards document.
+- [ ] If `<audit folder>/AUDIT-<Tool>.md` exists, update it accordingly.
+- [ ] If the project uses git, offer to tag the version (`git tag vX.Y.Z`); do not do it automatically.
+- [ ] This is a quick pre-release checklist, not a full audit. If something needs a deeper check (suspected old drift from the standards, a tool that has not been audited in a long time, doubt whether the existing audit is still correct), point to running the `tool-standards-audit` agent on that tool; do not run a full audit yourself here.
 
-## הערות
+## Notes
 
-- זהו סקיל אכיפה/checklist, לא מחליף בדיקה ידנית של הפונקציונליות עצמה
-  (smoke test) — אם יש `RELEASE-CHECKLIST.md` ייעודי, הוא כולל גם את זה.
-- אם מתגלה שחסר `RELEASE-CHECKLIST.md` לכלי שמשתחרר בקביעות (כמו FamilyQuest PC
-  או TabToTable-AI), שווה להציע למשתמש ליצור אחד במבנה של AutoProcessTwin —
-  אך רק בבקשה מפורשת, לא באופן יזום באמצע release.
+- This is an enforcement/checklist skill. It does not replace a manual test of the functionality itself (smoke test); if a dedicated `RELEASE-CHECKLIST.md` exists, it covers that too.
+- If a tool that ships regularly (such as FamilyQuest PC or TabToTable-AI) turns out to lack a `RELEASE-CHECKLIST.md`, it is worth offering the user to create one modeled on AutoProcessTwin's, but only on explicit request, never proactively in the middle of a release.

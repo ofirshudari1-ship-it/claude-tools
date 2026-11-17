@@ -3,35 +3,26 @@ name: grep-audit-callers
 description: "Before changing a shared function, module or API, maps every caller across the whole project tree, classifies each (no change, needs update, dead code) and reports the full list before any edit. Trigger on: change this function, refactor, who calls this, change a shared API."
 ---
 
-# Grep Audit Callers — לפני שינוי קוד משותף
+# Grep Audit Callers: before changing shared code
 
-כשמבקשים לשנות פונקציה, מתודה, API, טיפוס משותף, או קובץ שיש לו כמה צרכנים —
-אל תערוך את ההגדרה קודם ותבדוק אחר כך. הסדר הוא הפוך.
+Purpose: when asked to change a function, method, API, shared type, or any file with several consumers, never edit the definition first and check afterwards. The order is the reverse. Trigger: "change this function", "refactor", "who calls this", "change a shared API". Input: the symbol (function/type/API) to be changed. Output: a complete, classified list of callers reported to the user before any edit, then the change applied to the definition and all flagged callers.
 
-## שלבים
+## Steps
 
-1. **מפה את כל הקוראים לפני כל עריכה** — הרץ Grep על **כל עץ הפרויקט** (לא רק
-   הקובץ שבו נמצאת ההגדרה) לשם הפונקציה/הסימבול, כולל וריאציות (import, קריאה
-   ישירה, קריאה דרך אובייקט/מודול, שימוש בטסטים).
-2. **סווג כל קורא שנמצא:**
-   - לא צריך שינוי — משתמש בממשק בצורה שנשארת תקפה.
-   - צריך עדכון — קריאה שתישבר או תתנהג אחרת אחרי השינוי.
-   - קוד מת — קורא שלא בשימוש בפועל (התגלה תוך כדי, לא מטרת החיפוש).
-3. **דווח למשתמש את הרשימה המלאה לפני נגיעה בקוד** — אילו קבצים, כמה קריאות,
-   אילו מהן דורשות עדכון. אל תתחיל לערוך על סמך הנחה "כנראה רק המקום הזה".
-4. **אם הקוראים פרוסים על כמה שכבות** (למשל UI + service + tests, או extension
-   background + content script + popup) — תוכנית השינוי חייבת לכסות את כל
-   השכבות באותה סבב עריכה, לא רק את השכבה הראשונה שנמצאה.
-5. רק אחרי המיפוי והדיווח — לבצע את השינוי בהגדרה ובכל הקוראים שסומנו.
+1. **Map all callers before any edit.** Run Grep over the **entire project tree** (not only the file holding the definition) for the function/symbol name, including variations: imports, direct calls, calls through an object/module, and usage in tests.
+2. **Classify every caller found:**
+   - No change needed: uses the interface in a way that stays valid.
+   - Needs update: a call that will break or behave differently after the change.
+   - Dead code: a caller that is not actually used (discovered along the way, not the goal of the search).
+3. **Report the full list to the user before touching code:** which files, how many calls, and which of them need an update. Do not start editing on the assumption "it is probably only this one place".
+4. **If the callers span several layers** (for example UI + service + tests, or extension background + content script + popup), the change plan must cover all layers in the same editing round, not only the first layer found.
+5. Only after the mapping and the report, make the change in the definition and in every caller marked for update.
 
-## למה זה קריטי דווקא בפרויקטים האלה
+## Why this matters in these projects
 
-בביקורת קוד קודמת ב-AutoProcessTwin, השיטה הזו חשפה 3 באגים נפרדים ב-3 סבבים
-נפרדים — כולם מקרים שבהם קורא נשכח כי השינוי נבדק רק במקום שבו הוא יזם אותו.
-זו לא שיטה תיאורטית; היא כבר הוכיחה את עצמה על הקוד הזה בפועל.
+In an earlier code review of AutoProcessTwin (a desktop automation tool), this method exposed 3 separate bugs across 3 separate rounds. All were cases where a caller was forgotten because the change was only checked at the place that initiated it. This is not a theoretical method; it has already proven itself on this code.
 
-## מתי לא צריך
+## When it is not needed
 
-- שינוי מקומי לחלוטין בפונקציה פרטית (`private`/לא-exported) עם יקף ידוע וסגור
-  לקובץ אחד — עדיין שווה grep מהיר בתוך הקובץ, אבל לא צריך את כל התהליך המלא.
-- הוספת קוד חדש בלי לשנות חתימה/התנהגות קיימת.
+- A fully local change to a private (`private` / non-exported) function whose scope is known and closed to a single file: a quick grep inside the file is still worthwhile, but the full process is not needed.
+- Adding new code without changing any existing signature or behavior.

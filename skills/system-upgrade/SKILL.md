@@ -3,68 +3,68 @@ name: system-upgrade
 description: "End-to-end upgrade of an existing web, Electron or Chrome-extension app: deterministic scan plus live browser check, evidence-based report across 10 dimensions (RTL, responsive, WCAG 2.2, design, UX states, forms, performance, setup, AI layer, code health), sprint plan and verified execution. Trigger on: upgrade the system, audit UX, fix RTL, system upgrade."
 ---
 
-# System Upgrade — שדרוג מערכת קיימת מקצה לקצה
+# System Upgrade — end-to-end upgrade of an existing system
 
-הסקיל הזה הוא ה-**orchestrator**. הוא רץ ב-session הראשי ומפעיל שני סוכנים נפרדים (sub-agent לא יכול להפעיל sub-agent):
-`system-upgrader` (סורק → מתכנן → מבצע) ואז `upgrade-evaluator` (מעריך סקפטי ב-context נקי). הפרדה זו היא הלקח המרכזי
-של Anthropic ב-harness design: מודל שמעריך את עבודתו משבח אותה.
+This skill is the **orchestrator**. It runs in the main session and launches two separate agents (a sub-agent cannot launch a sub-agent):
+`system-upgrader` (scans, plans, executes) and then `upgrade-evaluator` (a skeptical evaluator in a clean context). This separation is the key lesson
+from Anthropic's harness design work: a model that grades its own work will praise it.
 
-## פרמטרים
+## Parameters
 `/system-upgrade [path] [--mode product|brand|mixed] [--autonomy full|mechanical-only|plan-only] [--routes /a,/b] [--sprints S1-S3]`
-- `path` — שורש הפרויקט (ברירת מחדל: cwd).
-- `--mode` — `product` (dashboard/אפליקציה/כלי), `brand` (דף נחיתה/שיווקי), `mixed` (אפליקציה עם landing). ברירת מחדל: זיהוי אוטומטי (routes של marketing → mixed).
-- `--autonomy` — ברירת מחדל **`full`** (החלטת המשתמש 2026-09-24): מבצע את כל הספרינטים בלי לעצור. `mechanical-only`: S1 בלבד אוטומטית, השאר מדווח. `plan-only`: סריקה + REPORT + PLAN + צילומי before, בלי לגעת בקוד.
-- מה שלא צוין — הסוכן מחליט ומתעד ב-REPORT.
+- `path` — project root (default: cwd).
+- `--mode` — `product` (dashboard/app/tool), `brand` (landing/marketing page), `mixed` (an app with a landing page). Default: auto-detect (marketing routes present means mixed).
+- `--autonomy` — default **`full`** (owner decision, 2026-09-24): executes all sprints without stopping. `mechanical-only`: only S1 runs automatically, the rest is reported. `plan-only`: scan + REPORT + PLAN + "before" screenshots, without touching any code.
+- Anything not specified — the agent decides and documents the decision in the REPORT.
 
-## 10 הממדים (מלא ב-`references/scoring.md`)
-1 RTL ועברית · 2 רספונסיביות · 3 נגישות · 4 עיצוב ומותג · 5 UX flows ו-states · 6 טפסים · 7 ביצועים נתפסים · 8 קלות הגדרה ותפעול · 9 שכבת AI · 10 בריאות קוד-UI.
-לכל ממד קובץ reference עם כללים ממוספרים, severity ו-Wrong/Right: `references/rtl-hebrew.md`, `responsive.md`, `a11y-wcag22.md`, `design-quality.md`, `ux-flows.md`, `config-and-ai.md`.
+## The 10 dimensions (full detail in `references/scoring.md`)
+1 RTL and Hebrew · 2 Responsiveness · 3 Accessibility · 4 Design and brand · 5 UX flows and states · 6 Forms · 7 Perceived performance · 8 Ease of setup and operation · 9 AI layer · 10 UI code health.
+Each dimension has a reference file with numbered rules, severity and Wrong/Right examples: `references/rtl-hebrew.md`, `responsive.md`, `a11y-wcag22.md`, `design-quality.md`, `ux-flows.md`, `config-and-ai.md`.
 
-## תהליך (מה ה-session הראשי עושה)
+## Process (what the main session does)
 
-### 1. הכנה
-- ודא ש-`path` קיים, ושיש git (אם אין — `git init` + commit בסיס לפני הכל; אם המשתמש לא רוצה git — עצור ושאל).
-- `git status` — working tree מלוכלך? רשום ב-REPORT ותן ל-upgrader ליצור branch `upgrade/<YYYY-MM-DD>` (הוא עושה stash/commit של העבודה הקיימת לפי הכללים שלו).
+### 1. Preparation
+- Verify that `path` exists and that it is a git repo (if not, run `git init` + a baseline commit before anything else; if the user does not want git, stop and ask).
+- Run `git status`. If the working tree is dirty, record it in the REPORT and let the upgrader create the branch `upgrade/<YYYY-MM-DD>` (it stashes or commits the existing work according to its own rules).
 
-### 2. הפעלת `system-upgrader` (Agent tool, run_in_background: false)
-פרומפט חובה כולל: path מוחלט, mode, autonomy, routes אם צוינו, ההנחיה "פעל לפי `~/.claude/skills/system-upgrade/SKILL.md` — כל שלבי 0-7", ומיקום התוצרים `<path>/.claude/upgrade/`.
-הסוכן מחזיר: טבלת ממדים לפני/אחרי, commits, `[needs-human]`, 3 צעדים הבאים.
+### 2. Launch `system-upgrader` (Agent tool, run_in_background: false)
+The prompt must include: absolute path, mode, autonomy, routes if given, the instruction "follow `~/.claude/skills/system-upgrade/SKILL.md` — all steps 0-7", and the output location `<path>/.claude/upgrade/`.
+The agent returns: a before/after table of the dimensions, the commits, the `[needs-human]` items, and the 3 next steps.
 
-### 3. הפעלת `upgrade-evaluator` (Agent tool, context חדש)
-פרומפט חובה: path, "קרא `<path>/.claude/upgrade/UPGRADE-PLAN.md` ו-`UPGRADE-REPORT.md`; בדוק כל contract בפועל (אפליקציה רצה + detect.py); כתוב `EVAL.md` לפי `templates/EVAL.md`; ברירת מחדל ציון 5, עולים רק עם ראיה". **אל תעביר** לו את ההסברים של ה-upgrader למה משהו בסדר.
-ב-`plan-only` — ה-evaluator מעריך את **מצב הבסיס** ואת איכות ה-PLAN (האם ה-contracts מדידים? האם משהו קריטי חסר?).
+### 3. Launch `upgrade-evaluator` (Agent tool, fresh context)
+The prompt must include: path, and "read `<path>/.claude/upgrade/UPGRADE-PLAN.md` and `UPGRADE-REPORT.md`; verify every contract for real (running app + detect.py); write `EVAL.md` following `templates/EVAL.md`; the default score is 5, and a score rises only with evidence". **Do not pass** it the upgrader's explanations of why something is fine.
+In `plan-only` mode the evaluator assesses the **baseline state** and the quality of the PLAN (are the contracts measurable? is anything critical missing?).
 
-### 4. סבב תיקון (עד 2)
-אם EVAL = `ANOTHER-ROUND` → הפעל שוב את `system-upgrader` עם רשימת ה-FAIL בלבד ("תקן רק את אלה, אל תפתח חזיתות חדשות"), ואז evaluator שוב. אחרי 2 סבבים — עצור ודווח מה נשאר.
+### 4. Fix rounds (up to 2)
+If EVAL = `ANOTHER-ROUND`, launch `system-upgrader` again with the list of FAILs only ("fix only these, do not open new fronts"), then the evaluator again. After 2 rounds, stop and report what remains.
 
-### 5. סיכום למשתמש (בעברית, קצר)
-טבלת 10 הממדים לפני/אחרי · מה בוצע (commits) · מה דורש החלטה אנושית · קישורים ל-REPORT/PLAN/EVAL וצילומי before/after · 3 הצעדים הבאים.
-עדכן זיכרון (`memory/`) אם נלמד משהו על הפרויקט שלא נגזר מהקוד (למשל: "ב-X ה-login חוסם בדיקה חיה — יש route public ב-/demo").
+### 5. Summary to the user (short, in the user's language)
+The 10-dimension before/after table · what was done (commits) · what needs a human decision · links to the REPORT/PLAN/EVAL and the before/after screenshots · the 3 next steps.
+Update memory (`memory/`) if something was learned about the project that cannot be derived from the code (for example: "in X the login blocks live testing — there is a public route at /demo").
 
-## תוצרים (ב-`<path>/.claude/upgrade/`)
-| קובץ | מי כותב | מה |
+## Deliverables (in `<path>/.claude/upgrade/`)
+| File | Written by | What |
 |---|---|---|
-| `detect.json` | detect.py | ממצאים דטרמיניסטיים (file:line, rule, severity, fix) |
-| `detect-ignore.json` | upgrader (עם סיבה) | חריגים מתועדים — לא לחזור על false-positives |
-| `browser.json` / `browser-after.json` | upgrader | תוצאות הבדיקה החיה לכל route × viewport × theme |
+| `detect.json` | detect.py | Deterministic findings (file:line, rule, severity, fix) |
+| `detect-ignore.json` | upgrader (with a reason) | Documented exceptions — do not repeat false positives |
+| `browser.json` / `browser-after.json` | upgrader | Live-check results for every route × viewport × theme |
 | `screenshots/before/`, `screenshots/after/` | upgrader | `<route>__<w>__<theme>.png` |
-| `UPGRADE-REPORT.md` | upgrader | ציון בסיס + ממצאים לפי severity (תבנית `templates/UPGRADE-REPORT.md`) |
-| `UPGRADE-PLAN.md` | upgrader | ספרינטים S1-S6 עם contracts (תבנית `templates/UPGRADE-PLAN.md`) |
-| `EVAL.md` | evaluator | PASS/FAIL לכל contract, ציונים, verdict (תבנית `templates/EVAL.md`) |
+| `UPGRADE-REPORT.md` | upgrader | Baseline score + findings by severity (template `templates/UPGRADE-REPORT.md`) |
+| `UPGRADE-PLAN.md` | upgrader | Sprints S1-S6 with contracts (template `templates/UPGRADE-PLAN.md`) |
+| `EVAL.md` | evaluator | PASS/FAIL for every contract, scores, verdict (template `templates/EVAL.md`) |
 
-## הרצה ידנית של הכלים
+## Running the tools manually
 ```bash
-python ~/.claude/skills/system-upgrade/scripts/detect.py <root> --md            # סיכום Markdown + detect.json
-python ~/.claude/skills/system-upgrade/scripts/detect.py <root> --out x.json    # exit 2 = יש blocker/high
+python ~/.claude/skills/system-upgrade/scripts/detect.py <root> --md            # Markdown summary + detect.json
+python ~/.claude/skills/system-upgrade/scripts/detect.py <root> --out x.json    # exit 2 = there is a blocker/high finding
 ```
-פרוטוקול הדפדפן החי: `scripts/browser-pass.md`.
+The live-browser protocol: `scripts/browser-pass.md`.
 
-## חוקי ברזל (חלים על שני הסוכנים)
-1. **ראיה או כלום** — כל ממצא: `file:line` או `route@viewport` + צילום. `❓` עדיף על ניחוש.
-2. **כללי הפרויקט גוברים** — `design-rules`, `_AUDIT/STANDARDS.md`, `BRAND.md`, `DESIGN.md`, `CLAUDE.md`. סתירה עם הסטנדרט (למשל כלל שמורה על classes פיזיים) → הצעת מיגרציה ב-PLAN, לא דריסה שקטה.
-3. **צעדים קטנים, אף פעם לא rewrite** (STANDARDS חוק ברזל #1). קובץ ענק מפרקים בספרינט נפרד עם contract משלו.
-4. **טקסט עברי חדש** למשתמש (labels, שגיאות, empty states) → `copywriting-agent` אם קיים בפרויקט, אחרת סקיל `anthropic-skills:hebrew-copywriting` (STANDARDS §20.5).
-5. **לא נוגעים** בלוגיקה עסקית, DB, auth, תשלומים, API contracts — מסמנים `[needs-human]`. UI/UX/layout/tokens/a11y/copy בלבד.
-6. **git**: branch `upgrade/<date>`, commit לכל ספרינט עם הודעה `upgrade(S2): rtl logical classes + tablet breakpoints`, `lint`+`typecheck` (ומה שיש: tests) נקיים לפני commit. אין force-push, אין מחיקת branches.
-7. **בדיקה חיה לפני ואחרי** באותם routes/viewports. אם אי אפשר להריץ — הממדים התלויים מסומנים `❓` ולא מקבלים ציון.
-8. **Definition of Done** = Professional (`scoring.md`): כל ממד ≥ 8, 0 blocker/high, axe ≤ 2 לכל route, 0 console errors — או דיווח מפורש מה חסר ולמה.
+## Iron rules (apply to both agents)
+1. **Evidence or nothing** — every finding needs `file:line` or `route@viewport` + a screenshot. `❓` (not checked) is better than a guess.
+2. **Project rules take precedence** — `design-rules`, the project's standards file (for example `STANDARDS.md`), `BRAND.md`, `DESIGN.md`, `CLAUDE.md`. A conflict with the standard (for example a rule that mandates physical CSS classes) means a migration proposal in the PLAN, not a silent override.
+3. **Small steps, never a rewrite** (iron rule #1 of the project standards). A huge file is split in its own sprint with its own contract.
+4. **New Hebrew text** for the user (labels, errors, empty states) goes through the project's copywriting agent if one exists, otherwise through a Hebrew-copywriting skill (for example `anthropic-skills:hebrew-copywriting`).
+5. **Do not touch** business logic, DB, auth, payments or API contracts — mark them `[needs-human]`. UI/UX/layout/tokens/a11y/copy only.
+6. **git**: branch `upgrade/<date>`, one commit per sprint with a message like `upgrade(S2): rtl logical classes + tablet breakpoints`, with `lint` + `typecheck` (and tests, where they exist) clean before each commit. No force-push, no branch deletion.
+7. **Live check before and after** on the same routes/viewports. If it cannot be run, the dependent dimensions are marked `❓` and receive no score.
+8. **Definition of Done** = Professional (`scoring.md`): every dimension ≥ 8, 0 blocker/high, axe ≤ 2 per route, 0 console errors — or an explicit report of what is missing and why.

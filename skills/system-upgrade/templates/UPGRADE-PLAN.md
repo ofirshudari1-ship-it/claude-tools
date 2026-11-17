@@ -1,65 +1,65 @@
-# UPGRADE PLAN — <שם המערכת>
+# UPGRADE PLAN — <system name>
 
-> מבוסס על UPGRADE-REPORT מ-<תאריך>. autonomy: <full | mechanical-only | plan-only>. branch: `upgrade/<YYYY-MM-DD>`.
-> כל ספרינט = commit אחד (או כמה קטנים), lint+typecheck נקיים לפני commit, re-detect + צילומי after בסוף.
-> כלל ברזל: צעדים קטנים, בלי rewrite, בלי שינוי לוגיקה עסקית/DB/auth (→ `[needs-human]`).
+> Based on the UPGRADE-REPORT from <date>. autonomy: <full | mechanical-only | plan-only>. branch: `upgrade/<YYYY-MM-DD>`.
+> Each sprint = one commit (or several small ones), lint + typecheck clean before the commit, re-detect + "after" screenshots at the end.
+> Iron rule: small steps, no rewrite, no change to business logic / DB / auth (→ `[needs-human]`).
 
-## כיוון (brand mode בלבד — 3 שורות)
-1. האלמנט האופייני: …
-2. גופן + פלטה: …
-3. "הדבר האחד" שזוכרים: …
+## Direction (brand mode only — 3 lines)
+1. The signature element: …
+2. Typeface + palette: …
+3. "The one thing" people will remember: …
 
-## ספרינטים
+## Sprints
 
-### S1 — מכני ואוטומטי (סיכון נמוך)
-**היקף:** … (למשל: eslint-plugin-rtl-friendly --fix, token חסר, dvh, min-h-0, transition-all)
-**Contract (Done כש-):**
-- [ ] `detect.py` → 0 findings `rtl.physical-class` ב-`src/components` (חריגים עם `rtl-exception`)
-- [ ] `npx eslint` + `npx tsc --noEmit` נקיים
-- [ ] צילומי after ב-3 viewports זהים ל-before **חוץ** מ-… (אין רגרסיה חזותית)
-**סיכון:** … · **`[needs-human]`:** …
+### S1 — Mechanical and automatic (low risk)
+**Scope:** … (for example: eslint-plugin-rtl-friendly --fix, a missing token, dvh, min-h-0, transition-all)
+**Contract (Done when):**
+- [ ] `detect.py` → 0 `rtl.physical-class` findings in `src/components` (exceptions marked `rtl-exception`)
+- [ ] `npx eslint` + `npx tsc --noEmit` clean
+- [ ] "after" screenshots at 3 viewports identical to "before" **except** … (no visual regression)
+**Risk:** … · **`[needs-human]`:** …
 
 ### S2 — RTL / layout / responsive
-**היקף:** …
+**Scope:** …
 **Contract:**
-- [ ] אין overflow-x ב-375 ב-N routes (browser.json)
-- [ ] targets < 44px = 0 ב-375
-- [ ] מבחן המראה עובר ב-N routes + modals
-- [ ] עדכון כללי הפרויקט (design-rules R3 → logical) אם אושר
-**סיכון:** … · **`[needs-human]`:** …
+- [ ] No overflow-x at 375 on N routes (browser.json)
+- [ ] Targets < 44px = 0 at 375
+- [ ] The mirror test passes on N routes + modals
+- [ ] Project rules updated (design-rules R3 → logical) if approved
+**Risk:** … · **`[needs-human]`:** …
 
-### S3 — נגישות
+### S3 — Accessibility
 **Contract:**
-- [ ] axe violations ≤ 2 לכל route (light+dark)
+- [ ] axe violations ≤ 2 per route (light + dark)
 - [ ] 0 `a11y.div-onclick`, 0 `a11y.icon-button-no-label`, 0 `a11y.outline-none`
-- [ ] Tab pass ב-N routes: focus ring גלוי, לא מוסתר
-- [ ] הצהרת נגישות קיימת ומקושרת (ת"י 5568)
+- [ ] Tab pass on N routes: focus ring visible, not hidden
+- [ ] An accessibility statement exists and is linked (Israeli Standard SI 5568)
 
-### S4 — עיצוב ופוליש
+### S4 — Design and polish
 **Contract:**
-- [ ] 0 `design.hex-in-tsx` (חוץ מ-tokens/theme קבצים)
-- [ ] סולם טיפוגרפי: 0 `text-[≤11px]` מחוץ ל-badge
-- [ ] dark: כל token ב-3 הבלוקים; `color-scheme` + `theme-color`
-- [ ] "הסר אקססורי אחד" בוצע ב-N מסכים
+- [ ] 0 `design.hex-in-tsx` (except token/theme files)
+- [ ] Type scale: 0 `text-[≤11px]` outside badges
+- [ ] dark: every token in all 3 blocks; `color-scheme` + `theme-color`
+- [ ] "Remove one accessory" done on N screens
 
 ### S5 — UX flows / states / forms
 **Contract:**
-- [ ] 4 states לכל רשימה ראשית (empty/loading/error/success) — רשימה: …
-- [ ] טפסים: labels/autocomplete/inputmode/שגיאות ליד השדה — טפסים: …
-- [ ] URL state לטאבים/פילטרים ב-…
+- [ ] 4 states for every main list (empty/loading/error/success) — lists: …
+- [ ] Forms: labels/autocomplete/inputmode/errors next to the field — forms: …
+- [ ] URL state for tabs/filters in …
 - [ ] 0 `window.alert/confirm`
 
-### S6 — הגדרה ו-AI
+### S6 — Setup and AI
 **Contract:**
-- [ ] settings מקובצים, שמירה מיידית עם feedback
-- [ ] דפוס AI אחד לפחות מוטמע עם עריכה-לפני-שמירה + fallback: …
+- [ ] Settings grouped, instant save with feedback
+- [ ] At least one AI pattern embedded with edit-before-save + fallback: …
 - [ ] `[needs-human]`: …
 
-## סדר ביצוע ותלויות
-S1 → S2 → S3 → S4 → S5 → S6. S3/S4 יכולים להתבצע במקביל אחרי S2.
+## Execution order and dependencies
+S1 → S2 → S3 → S4 → S5 → S6. S3/S4 can run in parallel after S2.
 
-## מחוץ להיקף (במפורש)
+## Out of scope (explicit)
 - …
 
-## יעד סופי
-Professional: כל ממד ≥ 8, 0 blocker/high, axe ≤ 2, 0 console errors. (ראה scoring.md)
+## Final target
+Professional: every dimension ≥ 8, 0 blocker/high, axe ≤ 2, 0 console errors. (See scoring.md)

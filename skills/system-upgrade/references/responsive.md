@@ -1,56 +1,56 @@
-# רספונסיביות — מובייל, טאבלט, דסקטופ, מסך רחב
+# Responsiveness: mobile, tablet, desktop, wide screen
 
-מקורות: Vercel web-interface-guidelines, WCAG 2.2 (1.4.10 Reflow, 2.5.8 Target Size), home-hub `design-rules` R7, STANDARDS §14.2.
+Sources: Vercel web-interface-guidelines, WCAG 2.2 (1.4.10 Reflow, 2.5.8 Target Size), home-hub `design-rules` R7, STANDARDS §14.2.
 
-## RS-1. Viewports חובה לבדיקה — blocker אם חסר viewport meta
-| שם | רוחב | מה בודקים |
+## RS-1. Required viewports: blocker if the viewport meta is missing
+| Name | Width | What to check |
 |---|---|---|
-| mobile | 375 (+320 ל-Reflow) | bottom-nav, שום גלילה אופקית, 44px targets, 16px inputs, כותרות לא נשברות באמצע מילה |
-| tablet | 768 | האם יש layout ביניים או שזה מובייל מתוח / דסקטופ דחוס |
-| desktop | 1440 | sidebar, grid 2-3 עמודות, max-width לתוכן |
-| wide | 2560 (או zoom 50%) | תוכן מעוגן (RTL: לימין), לא "צף" במרכז מסך 27" |
-`<meta name="viewport" content="width=device-width, initial-scale=1">` — בלי `maximum-scale=1` / `user-scalable=no` (אסור לחסום zoom).
+| mobile | 375 (+320 for Reflow) | bottom-nav, no horizontal scroll, 44px targets, 16px inputs, headings do not break mid-word |
+| tablet | 768 | is there an intermediate layout, or is it a stretched mobile / squeezed desktop |
+| desktop | 1440 | sidebar, 2-3 column grid, max-width for content |
+| wide | 2560 (or zoom 50%) | content is anchored (RTL: to the right), not "floating" in the middle of a 27" screen |
+`<meta name="viewport" content="width=device-width, initial-scale=1">` with no `maximum-scale=1` / `user-scalable=no` (blocking zoom is forbidden).
 
-## RS-2. Breakpoints מדורגים, לא הכל ב-`sm:` — medium
-דפוס שנמצא ב-home-hub: `sm:` ×412 מול `md:` ×39 — כלומר אין מצב טאבלט. כלל: layout שמשתנה בין מובייל לדסקטופ צריך לפחות שתי נקודות (`md:` לטאבלט, `lg:`/`xl:` לדסקטופ). Grid: `grid-cols-1 md:grid-cols-2 xl:grid-cols-3`.
+## RS-2. Graded breakpoints, not everything at `sm:`: medium
+A pattern found in home-hub: `sm:` x412 vs `md:` x39, meaning there is no tablet mode. Rule: a layout that changes between mobile and desktop needs at least two breakpoints (`md:` for tablet, `lg:`/`xl:` for desktop). Grid: `grid-cols-1 md:grid-cols-2 xl:grid-cols-3`.
 
-## RS-3. גובה מסך: `dvh` לא `vh` — medium
-`h-screen`/`100vh` במובייל = שורת הכתובת של הדפדפן מכסה את התחתית. `h-dvh` / `min-h-dvh` (fallback: `min-height:100vh; min-height:100dvh`).
+## RS-3. Screen height: `dvh`, not `vh`: medium
+`h-screen`/`100vh` on mobile means the browser address bar covers the bottom. Use `h-dvh` / `min-h-dvh` (fallback: `min-height:100vh; min-height:100dvh`).
 
-## RS-4. Bottom-nav ואזורים בטוחים — medium
-`fixed bottom-0` → `pb-[env(safe-area-inset-bottom)]` (iPhone home indicator); Capacitor/PWA: `viewport-fit=cover`. תוכן הדף מקבל `pb-20` (או `padding-bottom: calc(nav-height + safe-area)`) כדי שהפריט האחרון לא יוסתר.
+## RS-4. Bottom-nav and safe areas: medium
+`fixed bottom-0` needs `pb-[env(safe-area-inset-bottom)]` (iPhone home indicator); Capacitor/PWA: `viewport-fit=cover`. Page content gets `pb-20` (or `padding-bottom: calc(nav-height + safe-area)`) so the last item is not hidden.
 
-## RS-5. Hit targets — high במובייל
-≥ 44×44 CSS px במובייל, ≥ 24×24 בדסקטופ (WCAG 2.5.8). אייקון 16px בתוך כפתור = `p-3` לפחות. רווח בין targets סמוכים ≥ 8px. `touch-action: manipulation` על כפתורים (מבטל double-tap zoom delay).
-- בדיקה חיה: `[...document.querySelectorAll('button,a,[role=button]')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&(r.width<44||r.height<44)})`.
+## RS-5. Hit targets: high on mobile
+>= 44x44 CSS px on mobile, >= 24x24 on desktop (WCAG 2.5.8). A 16px icon inside a button needs at least `p-3`. Spacing between adjacent targets >= 8px. `touch-action: manipulation` on buttons (removes the double-tap zoom delay).
+- Live check: `[...document.querySelectorAll('button,a,[role=button]')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&(r.width<44||r.height<44)})`.
 
-## RS-6. טקסט וקלט במובייל — high
-- `input`/`select`/`textarea` ≥ 16px (`text-base`) — אחרת iOS Safari עושה zoom-in אוטומטי.
-- טקסט גוף ≥ 16px; משני ≥ 14px (`text-sm`); `text-[10px]`/`text-[11px]` = לא קריא במובייל, מותר רק ל-badge/caption בודד.
-- סולם טיפוגרפי אחד (למשל 12/14/16/18/20/24/30/36) במקום ערכים שרירותיים `text-[13px]`.
+## RS-6. Text and input on mobile: high
+- `input`/`select`/`textarea` >= 16px (`text-base`), otherwise iOS Safari zooms in automatically.
+- Body text >= 16px; secondary >= 14px (`text-sm`); `text-[10px]`/`text-[11px]` is unreadable on mobile, allowed only for a single badge/caption.
+- One type scale (for example 12/14/16/18/20/24/30/36) instead of arbitrary values like `text-[13px]`.
 
-## RS-7. Reflow (1.4.10) — high
-ב-320px ו-zoom 200% אין גלילה בשני צירים, אין תוכן חתוך. טבלאות רחבות → `overflow-x-auto` על wrapper **או** cards במובייל. `min-w-0` על flex children עם טקסט ארוך; `break-words` / `truncate` מכוון.
-- בדיקה חיה: `document.documentElement.scrollWidth > window.innerWidth`.
+## RS-7. Reflow (1.4.10): high
+At 320px and 200% zoom there is no two-axis scrolling and no clipped content. Wide tables: `overflow-x-auto` on a wrapper **or** cards on mobile. `min-w-0` on flex children with long text; deliberate `break-words` / `truncate`.
+- Live check: `document.documentElement.scrollWidth > window.innerWidth`.
 
-## RS-8. אין רוחב קבוע גדול — medium
-`w-[600px]` / `min-w-[500px]` שובר מובייל. השתמש `w-full max-w-[600px]`. תמונות: `max-w-full h-auto` + `width/height` מפורשים (מונע CLS).
+## RS-8. No large fixed width: medium
+`w-[600px]` / `min-w-[500px]` breaks mobile. Use `w-full max-w-[600px]`. Images: `max-w-full h-auto` + explicit `width/height` (prevents CLS).
 
-## RS-9. ניווט לפי מכשיר — medium
-מובייל: bottom-nav (≤5 פריטים) או drawer; דסקטופ: sidebar/top-nav. **אותם פריטים באותו סדר** בשניהם (3.2.3 Consistent Navigation). Hover-only interactions חייבות חלופת tap.
+## RS-9. Navigation per device: medium
+Mobile: bottom-nav (<= 5 items) or a drawer; desktop: sidebar/top-nav. **The same items in the same order** on both (3.2.3 Consistent Navigation). Hover-only interactions need a tap alternative.
 
-## RS-10. מסך רחב — medium (R7 של home-hub)
-תוכן ב-xl/2xl מעוגן לצד הקריאה (RTL: ימין) עם cap: `max-w-[800px] lg:max-w-[920px] xl:max-w-[1080px] 2xl:max-w-[1220px]`. dashboard: grid שמתמלא, לא עמודה בודדת צרה במרכז.
+## RS-10. Wide screen: medium (home-hub R7)
+Content at xl/2xl is anchored to the reading side (RTL: right) with a cap: `max-w-[800px] lg:max-w-[920px] xl:max-w-[1080px] 2xl:max-w-[1220px]`. Dashboard: a grid that fills the width, not a single narrow column in the middle.
 
-## RS-11. Desktop tools (Electron/WPF/PyQt) — STANDARDS §14.2
-"רספונסיבי" = DPI 100–200% (`PerMonitorV2` awareness), גודל חלון מינימלי מוגדר, עובד ב-1366×768, זוכר מיקום/גודל חלון, לא נפתח מחוץ למסך.
+## RS-11. Desktop tools (Electron/WPF/PyQt): STANDARDS §14.2
+"Responsive" = DPI 100-200% (`PerMonitorV2` awareness), a defined minimum window size, works at 1366x768, remembers window position/size, never opens off-screen.
 
-## RS-12. Chrome extension popup — STANDARDS §13
-popup ≤ 800×600; רוחב קבוע (360–420px) עם `min-height`; תוכן ארוך → options page, לא גלילה בפופאפ.
+## RS-12. Chrome extension popup: STANDARDS §13
+Popup <= 800x600; fixed width (360-420px) with `min-height`; long content goes to the options page, not a scrolling popup.
 
-## צ'קליסט הרצה חיה לכל route
-- [ ] 375: אין overflow-x, bottom-nav לא מסתיר תוכן, targets ≥ 44, inputs ≥ 16px
-- [ ] 768: יש layout ביניים סביר (לא עמודה אחת מתוחה)
-- [ ] 1440: sidebar + תוכן, אין שורות טקסט > 80 תווים
-- [ ] 2560: תוכן מעוגן ולא אבוד במרכז
-- [ ] light + dark בכל אחד
+## Live-run checklist for every route
+- [ ] 375: no overflow-x, bottom-nav does not hide content, targets >= 44, inputs >= 16px
+- [ ] 768: a sensible intermediate layout (not one stretched column)
+- [ ] 1440: sidebar + content, no text lines longer than 80 characters
+- [ ] 2560: content is anchored and not lost in the middle
+- [ ] light + dark at each of the above

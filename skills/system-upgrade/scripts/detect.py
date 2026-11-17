@@ -29,6 +29,8 @@ CSS_EXT = {".css", ".scss", ".sass", ".less"}
 ALL_EXT = CODE_EXT | CSS_EXT
 
 SEV_ORDER = {"blocker": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
+# Any character in the Hebrew Unicode block (U+0590-U+05FF: letters, niqqud points, cantillation marks).
+# Used only to decide whether the project contains Hebrew text, which switches on the RTL rules.
 HEBREW_RE = re.compile(r"[\u0590-\u05FF]")
 
 VARIANT = r"(?:(?:sm|md|lg|xl|2xl|hover|focus|focus-visible|focus-within|active|group-hover|peer-checked|disabled|first|last|odd|even|dark|print|motion-safe|motion-reduce|has-\[[^\]]+\]|data-\[[^\]]+\]|aria-\[[^\]]+\]|\[[^\]]+\]):)*"
@@ -203,61 +205,61 @@ class Detector:
                         continue
                     physical += 1
                     self.add("rtl.physical-class", "high", "rtl", path, i, ln.strip()[:110],
-                             "החלף ל-logical: ml→ms, mr→me, pl→ps, pr→pe, left→start, right→end, text-left/right→text-start/end, rounded-l/r→rounded-s/e, border-l/r→border-s/e, space-x→gap (או eslint-plugin-rtl-friendly --fix)")
+                             "Replace with logical classes: ml→ms, mr→me, pl→ps, pr→pe, left→start, right→end, text-left/right→text-start/end, rounded-l/r→rounded-s/e, border-l/r→border-s/e, space-x→gap (or eslint-plugin-rtl-friendly --fix)")
                 logical += len(LOGICAL_TOKEN_RE.findall(ln))
                 if "flex-row-reverse" in ln and "rtl:" not in ln:
-                    self.add("rtl.row-reverse", "medium", "rtl", path, i, ln.strip()[:110], "dir=rtl כבר הופך flex; row-reverse = היפוך כפול. השתמש flex-row ותן לדפדפן להפוך")
+                    self.add("rtl.row-reverse", "medium", "rtl", path, i, ln.strip()[:110], "dir=rtl already mirrors flex; row-reverse = double reversal. Use flex-row and let the browser mirror it")
                 if re.search(r"(?<![\w-])-?translate-x-(?!1/2)", ln) and "rtl:" not in ln:
-                    self.add("rtl.translateX-anim", "medium", "rtl", path, i, ln.strip()[:110], "translateX לא הופך ב-RTL — הוסף rtl:-translate-x-* או השתמש ב-:dir(rtl) עם משתנה כיוון")
+                    self.add("rtl.translateX-anim", "medium", "rtl", path, i, ln.strip()[:110], "translateX is not mirrored in RTL — add rtl:-translate-x-* or use :dir(rtl) with a direction variable")
                 if DIRECTIONAL_ICON_RE.search(ln) and not re.search(r"rtl:|scale-x|DirectionalIcon|rtl-exception|^\s*import|ArrowLeftRight", ln):
                     self.add("rtl.icon-directional", "medium" if self.is_bilingual else "low", "rtl", path, i, ln.strip()[:110],
-                             "אייקון כיווני (חץ/chevron): ב-RTL 'הבא' מצביע שמאלה. באפליקציה דו-לשונית — rtl:-scale-x-100 / DirectionalIcon; בחד-לשונית עברית — לוודא שהכיוון הפיזי נכון")
+                             "Directional icon (arrow/chevron): in RTL 'next' points left. In a bilingual app use rtl:-scale-x-100 / DirectionalIcon; in a Hebrew-only app verify the physical direction is correct")
                 if re.search(r"(?<![\w-])(?:h-screen|min-h-screen)(?![\w-])|100vh", ln) and "dvh" not in ln:
-                    self.add("resp.h-screen", "medium", "responsive", path, i, ln.strip()[:110], "השתמש h-dvh / min-h-dvh (100dvh) — שורת הכתובת במובייל מכסה vh")
+                    self.add("resp.h-screen", "medium", "responsive", path, i, ln.strip()[:110], "Use h-dvh / min-h-dvh (100dvh) — the mobile address bar covers vh")
                 for m in TINY_FONT_RE.finditer(ln):
                     if float(m.group(1)) <= 11:
                         tiny.append(i)
                 for m in FIXED_W_RE.finditer(ln):
                     if int(m.group(1)) > 360:
-                        self.add("resp.fixed-px-width", "medium", "responsive", path, i, ln.strip()[:110], "רוחב קבוע > 360px שובר מובייל — w-full max-w-[Npx]")
+                        self.add("resp.fixed-px-width", "medium", "responsive", path, i, ln.strip()[:110], "Fixed width > 360px breaks mobile — use w-full max-w-[Npx]")
                 if re.search(r"(?<![\w-])sm:", ln): sm_count += 1
                 if re.search(r"(?<![\w-])(?:md|lg|xl|2xl):", ln): md_count += 1
                 if re.search(r"(?<![\w-])outline-none(?![\w-])|outline:\s*(?:none|0)", ln) and not re.search(r"focus-visible|ring-", ln):
                     if re.search(r"focus:(?:border|bg|shadow|text)", ln):
-                        self.add("a11y.outline-none", "low", "a11y", path, i, ln.strip()[:110], "outline-none עם focus:border בלבד — שינוי גבול הוא אינדיקציה חלשה (3:1?). עדיף focus-visible:ring-2")
+                        self.add("a11y.outline-none", "low", "a11y", path, i, ln.strip()[:110], "outline-none with only focus:border — a border change is a weak indicator (3:1 contrast?). Prefer focus-visible:ring-2")
                     else:
-                        self.add("a11y.outline-none", "high", "a11y", path, i, ln.strip()[:110], "outline-none בלי תחליף = אין focus ring. הוסף focus-visible:ring-2 focus-visible:ring-offset-2")
+                        self.add("a11y.outline-none", "high", "a11y", path, i, ln.strip()[:110], "outline-none without a replacement = no focus ring. Add focus-visible:ring-2 focus-visible:ring-offset-2")
                 if re.search(r"(?<![\w-])transition-all(?![\w-])|transition:\s*all", ln):
-                    self.add("a11y.transition-all", "low", "a11y", path, i, ln.strip()[:110], "transition: all יקר ולא צפוי — פרט: transition-colors / transition-transform")
+                    self.add("a11y.transition-all", "low", "a11y", path, i, ln.strip()[:110], "transition: all is expensive and unpredictable — be specific: transition-colors / transition-transform")
                 if re.search(r"\bautoFocus\b", ln):
-                    self.add("a11y.autofocus-mobile", "low", "a11y", path, i, ln.strip()[:110], "autoFocus במובייל פותח מקלדת ומזיז layout — הפעל רק בדסקטופ / אחרי אינטראקציה")
+                    self.add("a11y.autofocus-mobile", "low", "a11y", path, i, ln.strip()[:110], "autoFocus on mobile opens the keyboard and shifts the layout — enable only on desktop / after an interaction")
                 if RAW_PALETTE_RE.search(ln) and self.has_token_system and not token_file:
-                    self.add("design.raw-palette", "low", "design", path, i, ln.strip()[:110], "פלטת Tailwind גולמית כשיש token system — השתמש ב-token (text-ink-dim, bg-surface-2)")
+                    self.add("design.raw-palette", "low", "design", path, i, ln.strip()[:110], "Raw Tailwind palette while a token system exists — use a token (text-ink-dim, bg-surface-2)")
             if is_markup and not token_file and not infra_file and "href=" not in ln and "token-exception" not in ln and "R2 exception" not in ln and "url(" not in ln and not re.match(r"\s*(?://|\*|/\*)", ln):
                 for m in HEX_RE.finditer(ln):
-                    self.add("design.hex-in-tsx", "medium", "design", path, i, ln.strip()[:110], "צבע קשיח בקומפוננט — העבר ל-token ב-globals.css (var(--x)) או סמן token-exception עם סיבה")
+                    self.add("design.hex-in-tsx", "medium", "design", path, i, ln.strip()[:110], "Hard-coded color in a component — move it to a token in globals.css (var(--x)) or mark token-exception with a reason")
             if ALERT_RE.search(ln) and "console." not in ln and not re.search(r"\bfunction\s+(?:alert|confirm|prompt)|const\s+(?:alert|confirm|prompt)", ln) and not re.match(r"\s*(?://|\*|/\*)", ln):
-                self.add("ux.alert-confirm", "medium", "ux", path, i, ln.strip()[:110], "window.alert/confirm חוסמים ולא נגישים — dialog/undo-toast של המערכת")
+                self.add("ux.alert-confirm", "medium", "ux", path, i, ln.strip()[:110], "window.alert/confirm are blocking and inaccessible — use the app's dialog / undo-toast")
             if DATE_RE.search(ln):
-                self.add("ux.hardcoded-date-format", "low", "ux", path, i, ln.strip()[:110], "פורמט תאריך/מספר דרך Intl.DateTimeFormat('he-IL') / Intl.NumberFormat('he-IL')")
+                self.add("ux.hardcoded-date-format", "low", "ux", path, i, ln.strip()[:110], "Format dates/numbers via Intl.DateTimeFormat('he-IL') / Intl.NumberFormat('he-IL') (use the app's locale)")
             if FONT_DEFAULT_RE.search(ln) and re.search(r"\b(?:Inter|Roboto|Arial)\b", ln):
-                self.add("design.font-default", "medium", "design", path, i, ln.strip()[:110], "Inter/Roboto/Arial כגופן יחיד = anti-slop. לעברית: Assistant/Heebo/Rubik/Noto Sans Hebrew — גופן ראשי אחד + משני לכל היותר")
+                self.add("design.font-default", "medium", "design", path, i, ln.strip()[:110], "Inter/Roboto/Arial as the only font = generic anti-slop look. For Hebrew: Assistant/Heebo/Rubik/Noto Sans Hebrew — one primary font + at most one secondary")
 
         self.stats["physical_classes"] += physical
         self.stats["logical_classes"] += logical
         if tiny:
-            self.add("resp.tiny-font", "medium", "responsive", path, tiny[0], f"{len(tiny)}× text-[≤11px] (שורות {', '.join(map(str, tiny[:8]))}{'…' if len(tiny) > 8 else ''})",
-                     "טקסט ≤ 11px לא קריא במובייל — סולם: text-xs (12) לcaption, text-sm (14) למשני, text-base (16) לגוף")
+            self.add("resp.tiny-font", "medium", "responsive", path, tiny[0], f"{len(tiny)}× text-[≤11px] (lines {', '.join(map(str, tiny[:8]))}{'…' if len(tiny) > 8 else ''})",
+                     "Text ≤ 11px is unreadable on mobile — scale: text-xs (12) for captions, text-sm (14) for secondary text, text-base (16) for body")
         if is_markup and sm_count >= 5 and md_count == 0 and re.search(r"client|page|layout|shell|grid|list|dashboard", name):
-            self.add("resp.no-md-lg", "low", "responsive", path, 1, f"{sm_count}× sm: ו-0× md:/lg:/xl:", "אין מצב טאבלט/דסקטופ — layout שמשתנה צריך md: (768) ו-lg:/xl: (1024+), לא רק sm:")
+            self.add("resp.no-md-lg", "low", "responsive", path, 1, f"{sm_count}× sm: and 0× md:/lg:/xl:", "No tablet/desktop mode — a responsive layout needs md: (768) and lg:/xl: (1024+), not only sm:")
         if is_markup and re.search(r"\bfixed\b[^\n]*\bbottom-0\b|\bbottom-0\b[^\n]*\bfixed\b", t) and "safe-area" not in t:
             m = re.search(r"\bfixed\b[^\n]*\bbottom-0\b|\bbottom-0\b[^\n]*\bfixed\b", t)
-            self.add("resp.safe-area", "medium", "responsive", path, line_of(t, m.start()), snippet(t, m.start()), "fixed bottom בלי env(safe-area-inset-bottom) — מוסתר ע\"י home indicator ב-iPhone")
+            self.add("resp.safe-area", "medium", "responsive", path, line_of(t, m.start()), snippet(t, m.start()), "fixed bottom without env(safe-area-inset-bottom) — hidden by the iPhone home indicator")
         if is_markup and len(lines) > 800:
-            self.add("code.giant-client", "low", "health", path, 1, f"{len(lines)} שורות", "קובץ UI > 800 שורות — פרק ל-sections/קומפוננטים (settings → טאבים)")
+            self.add("code.giant-client", "low", "health", path, 1, f"{len(lines)} lines", "UI file > 800 lines — split into sections/components (settings → tabs)")
         inline = t.count("style={{")
         if inline > 20:
-            self.add("code.inline-style-count", "info", "health", path, 1, f"{inline}× style={{{{", "הרבה inline styles — העבר ל-classes/tokens אלא אם זה --card-color דינמי")
+            self.add("code.inline-style-count", "info", "health", path, 1, f"{inline}× style={{{{", "Many inline styles — move to classes/tokens unless it is a dynamic --card-color")
 
         if not is_markup:
             return
@@ -275,19 +277,19 @@ class Detector:
             inside_label = before.rfind("<label") > before.rfind("</label>")
             has_dir = re.search(r"\bdir\s*=", tag)
             if typ in ("tel", "email", "url", "password") and not (has_dir and re.search(r"dir\s*=\s*[\"']ltr", tag)):
-                self.add("rtl.input-dir", "high", "rtl", path, line_of(t, m.start()), snippet(t, m.start()), f'input type="{typ}" חייב dir="ltr" (+ text-start, inputMode, autoComplete) — אחרת הספרות/אותיות מתהפכות')
+                self.add("rtl.input-dir", "high", "rtl", path, line_of(t, m.start()), snippet(t, m.start()), f'input type="{typ}" must have dir="ltr" (+ text-start, inputMode, autoComplete) — otherwise digits/letters get reversed')
             elif typ in ("text", "search") and not has_dir and self.stats["hebrew_files"]:
-                self.add("rtl.free-input-no-auto", "low", "rtl", path, line_of(t, m.start()), snippet(t, m.start()), 'קלט חופשי → dir="auto" כדי שמילה באנגלית לא תקפוץ לצד הלא נכון')
+                self.add("rtl.free-input-no-auto", "low", "rtl", path, line_of(t, m.start()), snippet(t, m.start()), 'Free-text input → dir="auto" so an English word does not jump to the wrong side')
             if typ not in ("submit", "button", "checkbox", "radio", "range", "file", "color") and not inside_label and not re.search(r"aria-label(?:ledby)?\s*=|\bid\s*=|\btitle\s*=", tag):
-                self.add("a11y.input-no-label", "medium", "a11y", path, line_of(t, m.start()), snippet(t, m.start()), "שדה בלי id (ל-label htmlFor) ובלי aria-label — קורא מסך לא יודע מה זה; placeholder ≠ label")
+                self.add("a11y.input-no-label", "medium", "a11y", path, line_of(t, m.start()), snippet(t, m.start()), "Field without an id (for label htmlFor) and without aria-label — a screen reader cannot tell what it is; placeholder ≠ label")
             if typ in ("tel", "email") and not re.search(r"autoComplete|autocomplete", tag):
-                self.add("ux.form-no-autocomplete", "low", "forms", path, line_of(t, m.start()), snippet(t, m.start()), 'הוסף autoComplete="tel"/"email" + inputMode — מילוי אוטומטי ומקלדת נכונה במובייל')
+                self.add("ux.form-no-autocomplete", "low", "forms", path, line_of(t, m.start()), snippet(t, m.start()), 'Add autoComplete="tel"/"email" + inputMode — autofill and the right keyboard on mobile')
         for m in TAG_TEXTAREA_RE.finditer(t):
             if not re.search(r"\bdir\s*=", m.group(0)) and self.stats["hebrew_files"]:
                 self.add("rtl.free-input-no-auto", "low", "rtl", path, line_of(t, m.start()), snippet(t, m.start()), 'textarea → dir="auto"')
         for m in TAG_IMG_RE.finditer(t):
             if not re.search(r"\balt\s*=", m.group(0)) and not re.match(r"\s*(?://|\*|/\*)", snippet(t, m.start())):
-                self.add("a11y.img-no-alt", "high", "a11y", path, line_of(t, m.start()), snippet(t, m.start()), 'כל תמונה עם alt (דקורטיבית: alt="")')
+                self.add("a11y.img-no-alt", "high", "a11y", path, line_of(t, m.start()), snippet(t, m.start()), 'Every image needs alt (decorative: alt="")')
         for m in TAG_BUTTON_RE.finditer(t):
             attrs, inner = m.group(1), m.group(2)
             text = re.sub(r"<[^>]+>", "", inner)
@@ -295,19 +297,22 @@ class Detector:
             has_expr = bool(re.search(r"\{[^}]*\}", text))
             text = re.sub(r"\{[^}]*\}", "", text).strip()
             if not text and not has_expr and not re.search(r"aria-label(?:ledby)?\s*=|\btitle\s*=", attrs) and "children" not in attrs:
-                self.add("a11y.icon-button-no-label", "high", "a11y", path, line_of(t, m.start()), snippet(t, m.start()), 'כפתור-אייקון בלי טקסט → aria-label="…" בעברית (+ title ל-tooltip)')
+                self.add("a11y.icon-button-no-label", "high", "a11y", path, line_of(t, m.start()), snippet(t, m.start()), 'Icon button without text → aria-label="…" in the UI language (+ title for a tooltip)')
         for m in TAG_CLICKY_RE.finditer(t):
             tag, attrs = m.group(1), m.group(2)
             if re.search(r"role\s*=\s*[\"'](?:button|link|tab|menuitem|option|checkbox|switch)", attrs) and re.search(r"tabIndex|onKeyDown|onKeyUp", attrs):
                 continue
             if re.search(r"inset-0|role\s*=\s*[\"']dialog|aria-modal|stopPropagation", attrs) or "stopPropagation" in t[m.end():m.end() + 80]:
                 continue  # backdrop click-to-close / dialog container — legit (Esc + close button are checked live)
-            self.add("a11y.div-onclick", "high", "a11y", path, line_of(t, m.start()), snippet(t, m.start()), f"<{tag} onClick> לא נגיש במקלדת/קורא מסך — <button type=\"button\"> לפעולה, <a href>/<Link> לניווט (או role+tabIndex+onKeyDown אם חייבים)")
+            self.add("a11y.div-onclick", "high", "a11y", path, line_of(t, m.start()), snippet(t, m.start()), f"<{tag} onClick> is not keyboard/screen-reader accessible — <button type=\"button\"> for actions, <a href>/<Link> for navigation (or role+tabIndex+onKeyDown if unavoidable)")
         # empty state heuristic — only dynamic arrays (not [1,2,3].map / Array.from), not skeletons/thin pages
         dyn_maps = [mm for mm in re.finditer(r"\.map\(\s*\(?\s*\w+[^)]*\)?\s*=>\s*(?:\(|<)", t)
                     if not re.search(r"\]\s*$|Array\.from\([^)]*\)\s*$|Array\(\d+\)\)?\s*$|\.fill\([^)]*\)\s*$", t[max(0, mm.start() - 60):mm.start()])]
+        # The Hebrew alternatives at the end of the regex below are common Hebrew empty-state phrases that count as
+        # "empty state handled": "אין" + whitespace ("there is no ..."), "לא נמצאו" ("none were found"), "עדיין אין" ("there are no ... yet").
+        # They are detection patterns for Hebrew UIs and must stay in Hebrew.
         if dyn_maps and not is_skeleton and len(lines) > 60 and not re.search(r"length\s*(?:===|==|!==|!=|>|<|>=)\s*\d|\.length\s*\?|!\w+(?:\.\w+)*\.length|\.length\s*&&|\bisEmpty|\bempty\b|EmptyState|אין\s|לא נמצאו|עדיין אין", t):
-            self.add("ux.no-empty-state", "medium", "ux", path, 1, "⚠️ heuristic: .map( ב-JSX בלי טיפול ב-length===0/EmptyState בקובץ", "רשימה בלי empty state — הסבר + CTA כשאין פריטים (ux-flows U-1)")
+            self.add("ux.no-empty-state", "medium", "ux", path, 1, "⚠️ heuristic: .map( in JSX without length===0/EmptyState handling in the file", "List without an empty state — explanation + CTA when there are no items (ux-flows U-1)")
 
     def scan_css(self, path, t, lines):
         name = os.path.basename(path).lower()
@@ -317,15 +322,15 @@ class Detector:
             if CSS_PHYSICAL_RE.search(ln) and ":dir(" not in ln and "[dir=" not in ln:
                 self.add("rtl.physical-css", "high", "rtl", path, i, ln.strip()[:110], "margin/padding/border-left|right → -inline-start|end; left/right → inset-inline-start|end; text-align:left|right → start|end")
             if re.search(r"outline\s*:\s*(?:none|0)\b", ln) and ":focus-visible" not in t:
-                self.add("a11y.outline-none", "high", "a11y", path, i, ln.strip()[:110], "outline:none בלי :focus-visible תחליף")
+                self.add("a11y.outline-none", "high", "a11y", path, i, ln.strip()[:110], "outline:none without a :focus-visible replacement")
             if re.search(r"transition\s*:\s*all\b", ln):
-                self.add("a11y.transition-all", "low", "a11y", path, i, ln.strip()[:110], "פרט מאפיינים במקום all")
+                self.add("a11y.transition-all", "low", "a11y", path, i, ln.strip()[:110], "List specific properties instead of all")
             if re.search(r"translateX\(", ln) and ":dir(" not in ln and "--dir" not in ln and "[dir=" not in t:
-                self.add("rtl.translateX-anim", "medium", "rtl", path, i, ln.strip()[:110], "translateX לא הופך ב-RTL — משתנה --dir + :dir(rtl)")
+                self.add("rtl.translateX-anim", "medium", "rtl", path, i, ln.strip()[:110], "translateX is not mirrored in RTL — use a --dir variable + :dir(rtl)")
             if FONT_DEFAULT_RE.search(ln):
-                self.add("design.font-default", "medium", "design", path, i, ln.strip()[:110], "גופן ברירת מחדל (Inter/Roboto/Arial) — בחר גופן עברי מובחן")
+                self.add("design.font-default", "medium", "design", path, i, ln.strip()[:110], "Default font (Inter/Roboto/Arial) — pick a distinctive Hebrew-capable font")
         if re.search(r"@keyframes|animation\s*:", t) and "prefers-reduced-motion" not in t and not self.has_reduced_motion_global:
-            self.add("a11y.no-reduced-motion", "medium", "a11y", path, 1, "יש אנימציות בלי @media (prefers-reduced-motion: reduce)", "הוסף בלוק reduced-motion שמבטל/מקצר אנימציות")
+            self.add("a11y.no-reduced-motion", "medium", "a11y", path, 1, "Animations present without @media (prefers-reduced-motion: reduce)", "Add a reduced-motion block that disables/shortens animations")
         # token system checks (globals / theme files)
         if re.search(r"^\s*:root\s*\{", t, re.M):
             root_block = self._block(t, r":root\s*\{")
@@ -336,17 +341,17 @@ class Detector:
                 dark_tokens = set(re.findall(r"--([\w-]+)\s*:", dark_text))
                 missing = sorted(colorish - dark_tokens)
                 for tok in missing:
-                    self.add("design.dark-token-missing", "medium", "design", path, self._line_of_token(t, tok), f"--{tok} מוגדר ב-:root אבל לא בבלוק dark", "כל token צבע חייב ערך dark (R4: :root + prefers-color-scheme + [data-theme=dark])")
+                    self.add("design.dark-token-missing", "medium", "design", path, self._line_of_token(t, tok), f"--{tok} is defined in :root but not in the dark block", "Every color token must have a dark value (R4: :root + prefers-color-scheme + [data-theme=dark])")
             if "@theme" in t:
                 theme_block = self._block(t, r"@theme[^{]*\{")
                 mapped = set(re.findall(r"var\(--([\w-]+)\)", theme_block))
                 for tok in sorted(colorish - mapped):
                     if tok.endswith(("-ink", "-text", "-soft")) or tok in mapped:
                         continue
-                    self.add("design.theme-map-missing", "low", "design", path, self._line_of_token(t, tok), f"--{tok} לא ממופה ב-@theme (אין bg-{tok}/text-{tok})", "הוסף --color-<tok>: var(--<tok>) ל-@theme inline")
+                    self.add("design.theme-map-missing", "low", "design", path, self._line_of_token(t, tok), f"--{tok} is not mapped in @theme (no bg-{tok}/text-{tok})", "Add --color-<tok>: var(--<tok>) to @theme inline")
         if name in ("globals.css", "global.css", "app.css", "index.css", "style.css", "styles.css", "main.css"):
             if not self.has_color_scheme:
-                self.add("design.color-scheme-missing", "low", "design", path, 1, "אין color-scheme", "html { color-scheme: light dark } — scrollbars/inputs/select נכונים ב-dark (Windows)")
+                self.add("design.color-scheme-missing", "low", "design", path, 1, "no color-scheme", "html { color-scheme: light dark } — scrollbars/inputs/selects render correctly in dark mode (Windows)")
 
     @staticmethod
     def _block(t, start_pat):
@@ -376,24 +381,24 @@ class Detector:
                 continue
             tag = m.group(0)
             if hebrew and not re.search(r"\bdir\s*=", tag):
-                self.add("rtl.html-dir", "blocker", "rtl", p, line_of(t, m.start()), tag[:110], '<html lang="he" dir="rtl"> (או דינמי לפי locale) — בלי זה logical properties, :dir() וקוראי מסך לא עובדים')
+                self.add("rtl.html-dir", "blocker", "rtl", p, line_of(t, m.start()), tag[:110], '<html lang="he" dir="rtl"> (or dynamic per locale) — without it logical properties, :dir() and screen readers do not work')
             elif hebrew and re.search(r"dir\s*=\s*[\"']ltr[\"']", tag):
-                self.add("rtl.html-dir", "high", "rtl", p, line_of(t, m.start()), tag[:110], "dir=ltr קבוע באפליקציה עברית")
+                self.add("rtl.html-dir", "high", "rtl", p, line_of(t, m.start()), tag[:110], "Hard-coded dir=ltr in a Hebrew app")
             if hebrew and not re.search(r"\blang\s*=", tag):
-                self.add("a11y.html-lang", "high", "a11y", p, line_of(t, m.start()), tag[:110], 'lang="he" חסר — קורא מסך יקרא עברית במבטא אנגלי (WCAG 3.1.1)')
+                self.add("a11y.html-lang", "high", "a11y", p, line_of(t, m.start()), tag[:110], 'lang="he" is missing — a screen reader will read Hebrew with an English accent (WCAG 3.1.1)')
             if self.stack in ("html", "chrome-ext", "electron", "react") and "<head" in t and "viewport" not in t:
-                self.add("resp.missing-viewport-meta", "blocker", "responsive", p, 1, "אין <meta name=viewport>", '<meta name="viewport" content="width=device-width, initial-scale=1"> (בלי user-scalable=no)')
+                self.add("resp.missing-viewport-meta", "blocker", "responsive", p, 1, "no <meta name=viewport>", '<meta name="viewport" content="width=device-width, initial-scale=1"> (without user-scalable=no)')
         if self.stack in ("next", "react", "html", "electron") and not self.has_theme_color:
-            self.add("design.theme-color-missing", "low", "design", self.root, 0, "אין theme-color", "<meta name=theme-color> (Next: metadata.themeColor) תואם רקע לכל theme")
+            self.add("design.theme-color-missing", "low", "design", self.root, 0, "no theme-color", "<meta name=theme-color> (Next: metadata.themeColor) matching the background of each theme")
         if not self.has_reduced_motion_global and any(os.path.splitext(p)[1].lower() in CSS_EXT for p in files):
             pass  # reported per css file
         if self.stack == "next":
             if "eslint-plugin-rtl-friendly" not in self.deps and hebrew:
-                self.add("tooling.no-rtl-lint", "medium", "health", self.root, 0, "eslint-plugin-rtl-friendly לא מותקן", "npm i -D eslint-plugin-rtl-friendly + rtlFriendly.configs.recommended ב-eslint.config.mjs → --fix מתקן classes פיזיים")
+                self.add("tooling.no-rtl-lint", "medium", "health", self.root, 0, "eslint-plugin-rtl-friendly is not installed", "npm i -D eslint-plugin-rtl-friendly + rtlFriendly.configs.recommended in eslint.config.mjs → --fix repairs physical classes")
             if not any(k in self.deps for k in ("@axe-core/playwright", "axe-core", "jest-axe", "vitest-axe")):
-                self.add("tooling.no-a11y-test", "low", "health", self.root, 0, "אין axe בבדיקות", "npm i -D @playwright/test @axe-core/playwright — סריקת a11y אוטומטית ב-CI")
+                self.add("tooling.no-a11y-test", "low", "health", self.root, 0, "no axe in tests", "npm i -D @playwright/test @axe-core/playwright — automated a11y scan in CI")
             if "eslint-plugin-jsx-a11y" not in self.deps and "eslint-config-next" not in self.deps:
-                self.add("tooling.no-jsx-a11y", "low", "health", self.root, 0, "אין eslint-plugin-jsx-a11y", "eslint-config-next כולל jsx-a11y; אחרת התקן ידנית")
+                self.add("tooling.no-jsx-a11y", "low", "health", self.root, 0, "eslint-plugin-jsx-a11y is missing", "eslint-config-next includes jsx-a11y; otherwise install it manually")
 
 def load_ignore(path):
     if path and os.path.exists(path):

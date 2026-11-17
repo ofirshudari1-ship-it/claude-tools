@@ -1,37 +1,37 @@
-# EVAL — <שם המערכת> — סבב <N>
+# EVAL — <system name> — round <N>
 
-> מעריך: `upgrade-evaluator` (context נפרד). תאריך: … · נבדק מול: UPGRADE-PLAN.md מ-… · אפליקציה רצה: ✅/❌
-> כלל: ברירת מחדל 5, עולים רק עם ראיה. לא קראתי את ההסברים של ה-upgrader למה משהו "בסדר".
+> Evaluator: `upgrade-evaluator` (separate context). Date: … · Checked against: UPGRADE-PLAN.md from … · App running: ✅/❌
+> Rule: the default score is 5, and a score rises only with evidence. I did not read the upgrader's explanations of why something is "fine".
 
-## בדיקת Contracts
+## Contract check
 
-| ספרינט | contract | תוצאה | ראיה (file:line / route@viewport / צילום) |
+| Sprint | contract | result | evidence (file:line / route@viewport / screenshot) |
 |---|---|---|---|
 | S1 | … | PASS / FAIL | … |
 | S2 | … | PASS / FAIL | … |
 
-## ציונים
+## Scores
 
-| # | ממד | לפני | אחרי | הראיה שמצדיקה את השינוי |
+| # | Dimension | Before | After | Evidence that justifies the change |
 |---|---|---|---|---|
-| 1 | RTL ועברית | | | |
-| 2 | רספונסיביות | | | |
-| 3 | נגישות | | | |
-| 4 | עיצוב ומותג | | | |
-| 5 | UX flows ו-states | | | |
-| 6 | טפסים | | | |
-| 7 | ביצועים נתפסים | | | |
-| 8 | קלות הגדרה ותפעול | | | |
-| 9 | שכבת AI | | | |
-| 10 | בריאות קוד-UI | | | |
+| 1 | RTL and Hebrew | | | |
+| 2 | Responsiveness | | | |
+| 3 | Accessibility | | | |
+| 4 | Design and brand | | | |
+| 5 | UX flows and states | | | |
+| 6 | Forms | | | |
+| 7 | Perceived performance | | | |
+| 8 | Ease of setup and operation | | | |
+| 9 | AI layer | | | |
+| 10 | UI code health | | | |
 
-## רגרסיות שנמצאו
-- `route@viewport` / `file:line` — מה נשבר לעומת before
+## Regressions found
+- `route@viewport` / `file:line` — what broke compared to before
 
-## 3 הדברים הכי גרועים שנשארו
+## The 3 worst things that remain
 1. …
 2. …
 3. …
 
 ## Verdict
-`DONE` (Professional) / `ANOTHER-ROUND` (רשימת FAIL להחזיר ל-upgrader) / `BLOCKED` (דורש אדם: …)
+`DONE` (Professional) / `ANOTHER-ROUND` (list of FAILs to return to the upgrader) / `BLOCKED` (needs a human: …)
