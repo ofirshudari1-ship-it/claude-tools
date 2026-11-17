@@ -61,6 +61,23 @@ available), and render it with `sharp` (Node) or headless Chrome (screenshotting
 exact control over text rendering — especially important for RTL scripts, which generative image
 models frequently distort.
 
+## Step 3b - craft floor (anti-AI-look, adapted from impeccable's craft-floor)
+
+Check the render itself, not the intention, in one batched look at each size it ships at.
+
+**Verify:** contrast (body ≥4.5:1, large ≥3:1; on colored surfaces tint secondary text from the
+hue, never gray) · shadows with real offset and soft blur · tight groups, more space above a
+heading than below · headings balanced, body measure 65-75ch · real copy at every size, fix
+overflow · one authored visual moment, not scattered effects.
+
+**Refuse by default:** same-size icon+heading+text cards as the layout · big-number hero stat
+template · small label above a heading · 01/02/03 section numbers · gradient text · glass/blur as
+decoration · colored side-border stripes above 1px · hard offset block shadows · emoji or Unicode
+glyphs as icons (draw a consistent SVG set) · system display font as the headline voice · light or
+dark picked by category instead of by the audience and where they will see it.
+
+Only the brand's real identity overrides a refusal.
+
 ## Step 4 - export
 
 - Export to every needed format (web/social) — WebP/AVIF/JPG, compressed under a size cap, plus
